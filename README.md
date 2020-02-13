@@ -11,12 +11,12 @@ Just a set of script to install automate installation of some useful software an
 
 * [plasma_fix_after_suspending.sh](helpers_workarounds/plasma_fix_after_suspending.sh) -- add it to "Autostart" to avoid some of annoying trouble after system was suspended and woked up:
   * Plasma -- destop artefacts after system woke up (actual for Plasma 5.16 and oldest)
-  * SmartVideoWallpaper -- avoid annoying transition (black screen) in video loop playback after system woke up, even option "Use double player" already checked
+  * [SmartVideoWallpaper](https://store.kde.org/p/1316299/) -- avoid annoying transition (black screen) in video loop playback after system woke up, even option "Use double player" already checked
   * kwin -- freezes while OpenGL/Vulkan application is running after system woke up
   * Qt applications -- artefacts with some Qt applications after system woke up (like Latte-Dock, Viber, MellowPlayer, etc)
 
 * [plasma_game_after_stop.sh](helpers_workarounds/plasma_game_after_stop.sh) -- launch it before game (or other "heavy" to GPU application) has been started to avoid:
-  * Plasma Dekstop Chortcuts -- can be moved and mixed on your desktop when application in "FullScreen" mode have a differen screen resolution than your current desktop
+  * Plasma Dekstop shortcuts -- can be moved and mixed on your desktop when application in "FullScreen" mode have a differen screen resolution than your current desktop
   * kwin -- freezes while OpenGL/Vulkan application is running after system woke up
   * non-US keyboard layout -- a lot of games and applications (like Unreal Engine 4) requires US keyboard layout, and switching to it sometimes is problematic while that application already started; so, better to do it before apllication has been started
 
