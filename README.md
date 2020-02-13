@@ -1,2 +1,2 @@
 # my_linux_staff
-set of script and some workarounds to keep life easier
+set of scripts and some workarounds to keep life easier
