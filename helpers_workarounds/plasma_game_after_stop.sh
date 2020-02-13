@@ -2,10 +2,8 @@
 
 /usr/bin/qdbus org.kde.KWin /Compositor resume
 
-/bin/cp ~/".config/plasma-org.kde.plasma.desktop-appletsrc.bck" ~/".config/plasma-org.kde.plasma.desktop-appletsrc"
+if [ -f "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck" ]; then
+    /bin/cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck" "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc"
+fi
 
 /usr/bin/kstart5 -- plasmashell --replace
-
-if [ -z "$(ps -aux | grep plasmashell | grep slave-socket)" ] ; then
-    /usr/bin/kstart5 plasmashell
-fi

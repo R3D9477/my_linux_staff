@@ -14,9 +14,9 @@ function fix_plasma() {
     #/usr/bin/kquitapp5 plasmashell                 # --- I also don't recommend to use it at startup time, because somethimes it hangs, too
 
     killall -SIGKILL plasmashell
-    /usr/bin/kstart5 plasmashell
+    /usr/bin/kstart5 -- plasmashell --replace
 
-    /usr/bin/kwin_x11 --replace &
+    /usr/bin/kstart5 -- kwin --replace
 }
 
 /usr/bin/dbus-monitor --system "type='signal',interface='org.freedesktop.login1.Manager',member=PrepareForSleep" | while read x; do

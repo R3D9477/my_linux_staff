@@ -1,10 +1,9 @@
 #!/bin/bash
 
-/bin/cp ~/".config/plasma-org.kde.plasma.desktop-appletsrc" ~/".config/plasma-org.kde.plasma.desktop-appletsrc.bck"
+/bin/cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck"
 
-CURRXKB='us,'$(setxkbmap -query | grep layout | cut -d ' ' -f6 | sed "s/,us//g" | sed "s/us,//g") ; setxkbmap us ; sleep .5s ; setxkbmap $CURRXKB
+/usr/bin/qdbus org.kde.keyboard /Layouts setLayout "us"
 
-/usr/bin/kwin_x11 --replace &
-sleep 1s
+/usr/bin/kstart5 -- kwin --replace
 
 /usr/bin/qdbus org.kde.KWin /Compositor suspend
