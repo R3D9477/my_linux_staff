@@ -22,16 +22,8 @@ install_lpkg                \
     libgl1-mesa-dev         \
     nvidia-driver-$NVIDIA_DRIVER_VERSION
 
-if [[ -z $(grep "GraphicsResetNotifications=true" ~/.config/plasmashellrc) ]]; then
-    echo "" >> ~/.config/plasmashellrc
-    echo "[QtQuickRendererSettings]" >> ~/.config/plasmashellrc
-    echo "GraphicsResetNotifications=true" >> ~/.config/plasmashellrc
-    echo "" >> ~/.config/plasmashellrc
-fi
+/usr/bin/kwriteconfig5 --file=$HOME/.config/plasmashellrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
+/usr/bin/kstart5 -- plasmashell --replace
 
-if [[ -z $(grep "GraphicsResetNotifications=true" ~/.config/kwinrc) ]]; then
-    echo "" >> ~/.config/kwinrc
-    echo "[QtQuickRendererSettings]" >> ~/.config/kwinrc
-    echo "GraphicsResetNotifications=true" >> ~/.config/kwinrc
-    echo "" >> ~/.config/kwinrc
-fi
+/usr/bin/kwriteconfig5 --file=$HOME/.config/kwinrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
+/usr/bin/kwin_x11 --replace &
