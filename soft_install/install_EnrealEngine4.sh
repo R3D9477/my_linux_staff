@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_DIR=
+TARGET_DIR="/home/$USER"
 
 GIT_USER=
 GIT_PASS=
