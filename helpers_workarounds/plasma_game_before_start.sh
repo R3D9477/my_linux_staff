@@ -5,5 +5,5 @@
 /usr/bin/qdbus org.kde.keyboard /Layouts setLayout "us"
 
 /usr/bin/kstart5 -- kwin --replace
-
+sleep 1s
 /usr/bin/qdbus org.kde.KWin /Compositor suspend
