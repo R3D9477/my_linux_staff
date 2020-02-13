@@ -1,3 +1,3 @@
 #!/bin/bash
 
-nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
+/usr/bin/nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
