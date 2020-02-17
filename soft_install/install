@@ -108,7 +108,7 @@ function install_lpkg() {
 
 function install_snap() {
     for SNAP_PKG_NAME in "$@" ; do
-        if ! sudo snap install $SNAP_PKG_NAME -y ; then
+        if ! sudo snap install $SNAP_PKG_NAME ; then
             echo "INSTALLATION OF $SNAP_PKG_NAME WAS FAILED (snap)"
             exit 1
         fi

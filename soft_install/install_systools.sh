@@ -24,6 +24,7 @@ install_lpkg                    \
     kate                        \
     kcalc                       \
     ktorrent                    \
+    kde-runtime                 \
     latte-dock                  \
     kdenetwork-filesharing      \
     partitionmanager            \
@@ -31,6 +32,10 @@ install_lpkg                    \
     software-properties-kde     \
     filelight                   \
     filezilla                   \
+    samba                       \
+    smbclient                   \
+    libsmbclient                \
+    python-smbc                 \
     python3-pydbus              \
     python3-construct           \
     kget                        \
@@ -49,3 +54,7 @@ install_lpkg                    \
     gstreamer1.0-pulseaudio     \
     ubuntu-restricted-extras    \
     linux-tools-common linux-tools-generic linux-tools-`uname -r`
+
+if [ ! -f "/usr/bin/kdesu" ]; then
+    sudo ln -s /etc/alternatives/kdesu /usr/bin/kdesu
+fi

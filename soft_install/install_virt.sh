@@ -5,14 +5,24 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
+sudo add-apt-repository --no-update --yes ppa:morphis/anbox-support
+
 get_local "virtualbox.deb" "https://download.virtualbox.org/virtualbox/6.1.2/virtualbox-6.1_6.1.2-135662~Ubuntu~bionic_amd64.deb"
-
-install_lpkg    \
-    dia         \
-    virtualbox
-
 get_local "google_key.pub" "https://dl-ssl.google.com/linux/linux_signing_key.pub"
 sudo apt-key add "$PKG_ARCHIVE/google_key.pub"
+
+update_system
+
+install_lpkg                \
+    linux-headers-generic   \
+    anbox-modules-dkms      \
+    virtualbox
+
+sudo modprobe ashmem_linux
+sudo modprobe binder_linux
+
+install_snap \
+    "anbox --devmode --beta"
 
 sudo usermod -aG vboxusers "$USER"
 

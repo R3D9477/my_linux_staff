@@ -22,8 +22,14 @@ install_lpkg                \
     libgl1-mesa-dev         \
     nvidia-driver-$NVIDIA_DRIVER_VERSION
 
-/usr/bin/kwriteconfig5 --file=$HOME/.config/plasmashellrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
-/usr/bin/kstart5 -- plasmashell --replace
+IFS='.' read -r -a NVIDIA_VERSION <<< $(apt-cache policy nvidia-driver-440 | grep Installed | cut -d ' ' -f4 | cut -d '-' -f1)
+if [ ! -z ${NVIDIA_VERSION[0]} ] && [ ! -z ${NVIDIA_VERSION[1]} ] ; then
+    # update https://github.com/flathub/org.freedesktop.Platform.GL.nvidia
+    # ...
+fi
 
-/usr/bin/kwriteconfig5 --file=$HOME/.config/kwinrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
-/usr/bin/kwin_x11 --replace &
+kwriteconfig5 --file=$HOME/.config/plasmashellrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
+kstart5 -- plasmashell --replace
+
+kwriteconfig5 --file=$HOME/.config/kwinrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
+kwin_x11 --replace &

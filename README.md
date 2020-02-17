@@ -29,8 +29,8 @@ Just a set of script to install automate installation of some useful software an
 * [install_gpu_nvidia.sh](soft_install/install_gpu_nvidia.sh) -- automatic installation of Nvidia drivers (by default latest LTS version)
 * [install_systools.sh](soft_install/install_systools.sh) -- automatic installation of some of useful tools and libraries to manage your system
 * [install_kwin-lowlatency.sh](soft_install/install_kwin-lowlatency.sh) -- automatic making and installation of [kwin-lowlatency](https://github.com/tildearrow/kwin-lowlatency)
-* [install_tools.sh](soft_install/install_tools.sh) -- automatic installation of some of usefull tools for dekstop like messengers and office packages
+* [install_usertools.sh](soft_install/install_tools.sh) -- automatic installation of some of usefull tools for dekstop like messengers, office packages, etc.
+* [install_virt.sh](soft_install/install_devtools.sh) -- automatic installation of some of virtualization systems to run software of different platforms
 * [install_win.sh](soft_install/install_win.sh) -- automatic installation of tools to run games and Windows-applications
-* [install_devtools.sh](soft_install/install_devtools.sh) -- automatic installation of some of development tools and IDEs
 * [install_graphictools.sh](soft_install/install_graphictools.sh) -- automation installation of some of graphic-development tools
 * [install_UnrealEngine4.sh](soft_install/install_UnrealEngine4.sh) -- automatic making and installation of latest [Unreal Engine 4](https://github.com/EpicGames/UnrealEngine)
