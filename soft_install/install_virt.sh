@@ -16,8 +16,13 @@ update_system
 install_lpkg                \
     linux-headers-generic   \
     anbox-modules-dkms      \
+    android-tools-adb       \
     virtualbox
 
+adb shell su -c "ip route add default dev eth0 via 192.168.250.1"
+adb shell su -c "ip rule add pref 32766 table main"
+adb shell su -c "ip rule add pref 32767 table local"
+    
 sudo modprobe ashmem_linux
 sudo modprobe binder_linux
 

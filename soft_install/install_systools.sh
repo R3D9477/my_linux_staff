@@ -22,6 +22,7 @@ install_lpkg                    \
     kdelibs5-dbg                \
     muon                        \
     kate                        \
+    kfind                       \
     kcalc                       \
     ktorrent                    \
     kde-runtime                 \
@@ -39,6 +40,10 @@ install_lpkg                    \
     python3-pydbus              \
     python3-construct           \
     kget                        \
+    wget                        \
+    lzip                        \
+    unzip                       \
+    squashfs-tools              \
     libgstreamer1.0-0           \
     gstreamer1.0-plugins-base   \
     gstreamer1.0-plugins-good   \

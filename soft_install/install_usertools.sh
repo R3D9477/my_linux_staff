@@ -5,6 +5,8 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
+sudo add-apt-repository --no-update --yes ppa:qbittorrent-team/qbittorrent-stable
+
 get_local "vk.deb"                      "https://desktop.userapi.com/get_last?platform=linux64&branch=master&packet=deb"
 get_local "steam.deb"                   "https://steamcdn-a.akamaihd.net/client/installer/steam.deb"
 get_local "viber.deb"                   "https://download.cdn.viber.com/cdn/desktop/Linux/viber.deb"
@@ -17,6 +19,8 @@ get_local "googleearth.deb"             "https://dl.google.com/dl/earth/client/c
 get_local "virtualbox.deb"              "https://download.virtualbox.org/virtualbox/6.1.2/virtualbox-6.1_6.1.2-135662~Ubuntu~bionic_amd64.deb"
 get_local "onlyoffice-desk.flatpakref"  "https://flathub.org/repo/appstream/org.onlyoffice.desktopeditors.flatpakref"
 
+update_system
+
 install_lpkg            \
     megasync            \
     dolphin-megasync    \
@@ -26,9 +30,14 @@ install_lpkg            \
     teamviewer          \
     vnc-viewer          \
     vokoscreen          \
+    kamoso              \
     steam               \
     viber               \
     vk                  \
+    clamav              \
+    clamav-daemon       \
+    libclamunrar*       \
+    qbittorrent         \
     qjoypad             \
     tuxguitar           \
     timidity            \
@@ -37,5 +46,7 @@ install_lpkg            \
     tuxguitar-alsa      \
     timidity-interfaces-extra
 
-install_snap            \
+sudo wget -nc -O "/usr/share/kservices5/ServiceMenus/clamtk-kde.desktop" "https://raw.githubusercontent.com/dave-theunsub/clamtk-kde/master/clamtk-kde.desktop"
+
+install_snap    \
     "skype --classic"
