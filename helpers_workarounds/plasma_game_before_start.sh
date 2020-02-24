@@ -1,9 +1,19 @@
 #!/bin/bash
 
-cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck"
-
 qdbus org.kde.keyboard /Layouts setLayout "us"
 
-kstart5 -- kwin --replace
-sleep 1s
-qdbus org.kde.KWin /Compositor suspend
+cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck"
+
+function restart_kwin_delayed() {
+
+    sleep 3s # wait 3s until target application will not be launched
+
+    kstart5 -- kwin --replace
+    sleep 1s # wait 1s until KWin will not be loaded
+
+    qdbus org.kde.KWin /Compositor suspend
+}
+
+if ! $(qdbus org.kde.KWin /Compositor active) ; then
+    restart_kwin_delayed & # restart KWin if compositor is suspended to avoid it's freezing
+fi

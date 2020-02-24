@@ -1,7 +1,7 @@
 #!/bin/bash
 
 kstart5 -- kwin --replace
-sleep 1s
+sleep 1s # wait 1s until KWin will not be loaded
 qdbus org.kde.KWin /Compositor resume
 
 if [ -f "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck" ]; then
