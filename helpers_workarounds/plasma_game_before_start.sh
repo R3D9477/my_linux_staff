@@ -7,11 +7,11 @@ cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" "$HOME/.config/plasma
 function fix_suspended_compositor() {
 
     sleep 3s # wait 3s until target application will not be launched
-
     kstart5 -- kwin --replace
-    sleep 1s # wait 1s until KWin will not be loaded
 
-    qdbus org.kde.KWin /Compositor suspend
+    #### if uncomment second 2 steps then Compositor will not resume automatically
+    #sleep 1s # wait 1s until KWin will not be loaded
+    #qdbus org.kde.KWin /Compositor suspend
 }
 
 if ! $(qdbus org.kde.KWin /Compositor active) ; then
