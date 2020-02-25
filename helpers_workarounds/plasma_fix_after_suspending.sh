@@ -1,7 +1,8 @@
 #!/bin/bash
 
 function fix_plasma() {
-    killall -SIGKILL plasmashell ; sleep 1s
+    killall -9 plasmashell
+    sleep 3s
     kstart5 -- plasmashell --replace
     kstart5 -- kwin --replace
 }
@@ -12,7 +13,7 @@ function fix_apps() {
     fi
 
     if [ ! -z "$(pidof latte-dock)" ]; then
-        killall -SIGKILL Viber
+        killall -9 Viber
         /opt/viber/Viber %U &
     fi
 }

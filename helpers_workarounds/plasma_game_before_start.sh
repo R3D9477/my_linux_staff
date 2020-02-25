@@ -4,7 +4,7 @@ qdbus org.kde.keyboard /Layouts setLayout "us"
 
 cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc.bck"
 
-function restart_kwin_delayed() {
+function fix_suspended_compositor() {
 
     sleep 3s # wait 3s until target application will not be launched
 
@@ -15,5 +15,5 @@ function restart_kwin_delayed() {
 }
 
 if ! $(qdbus org.kde.KWin /Compositor active) ; then
-    restart_kwin_delayed & # restart KWin if compositor is suspended to avoid it's freezing
+    fix_suspended_compositor & # restart KWin if compositor is suspended to avoid it's freezing
 fi
