@@ -32,4 +32,4 @@ kwriteconfig5 --file=$HOME/.config/plasmashellrc --group="QtQuickRendererSetting
 kstart5 -- plasmashell --replace
 
 kwriteconfig5 --file=$HOME/.config/kwinrc --group="QtQuickRendererSettings" --key="GraphicsResetNotifications" true
-kwin_x11 --replace &
+kstart5 -- kwin --replace
