@@ -2,7 +2,8 @@
 
 function fix_plasma() {
     killall -9 plasmashell
-    sleep 3s
+    sleep 1s
+    rm rm -rf /run/user/$UID/kdeinit5*
     kstart5 -- plasmashell --replace
     kstart5 -- kwin --replace
 }
