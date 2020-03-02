@@ -17,8 +17,10 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
-while getopts "t:u:p:b:m:e:d:r" opt; do
+while getopts "s:t:u:p:b:m:e:d:r:" opt; do
     case "$opt" in
+        d) DELETE_IF_EXISTS=1       ;;
+        s) SKIP_DEPS=1              ;;
         t) TARGET_DIR=${OPTARG}     ;;
         u) GIT_USER=${OPTARG}       ;;
         p) GIT_PASS=${OPTARG}       ;;
@@ -38,14 +40,8 @@ done
 
 #--------------------------------------------------------------------------------------------------
 
-if ! pushd "$TARGET_DIR" ; then
+if ! [ $SKIP_DEPS ]; then
 
-    echo ""
-    echo "    Target dir is not exists!"
-    echo ""
-
-    exit 2
-fi
     update_system
 
     install_lpkg                \
@@ -65,9 +61,46 @@ fi
         libclutter-gtk-1.0-0    \
         libclutter-gst-3.0-0    \
         xserver-xorg-input-all
+fi
 
-    if [ ! -d "UnrealEngine-$GIT_BRANCH" ]; then
-        if ! git clone "https://$GIT_USER:$GIT_PASS@github.com/EpicGames/UnrealEngine.git" "UnrealEngine-$GIT_BRANCH" ; then
+if ! pushd "$TARGET_DIR" ; then
+
+    echo ""
+    echo "    Target dir is not exists!"
+    echo ""
+
+    exit 2
+fi
+    echo ""
+    echo "    Installation path: $TARGET_DIR/UnrealEngine-$GIT_BRANCH"
+    echo ""
+
+    if [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
+        if [ $DELETE_IF_EXISTS ]; then
+
+            echo ""
+            echo "    Remove existing sources and do a clean install: UnrealEngine-$GIT_BRANCH"
+            echo ""
+
+            rm -rf "UnrealEngine-$GIT_BRANCH"
+        else
+            echo ""
+            echo "    Update existing sources: UnrealEngine-$GIT_BRANCH"
+            echo ""
+
+            git fetch --all
+
+            git submodule foreach --recursive "git clean -dfx"
+            git clean -dfx
+            git submodule foreach --recursive "git reset --hard HEAD"
+            git reset --hard HEAD
+
+            git pull
+        fi
+    fi
+
+    if ! [ -d "UnrealEngine-$GIT_BRANCH" ]; then
+        if ! ( git clone "https://$GIT_USER:$GIT_PASS@github.com/EpicGames/UnrealEngine.git" "UnrealEngine-$GIT_BRANCH" ) ; then
 
             echo ""
             echo "    Can't clone UnrealEngine from remote branch!"
@@ -79,14 +112,9 @@ fi
 
     pushd "UnrealEngine-$GIT_BRANCH"
 
-        if [ ! $MAKEONLY ]; then
+        if ! [ $MAKEONLY ]; then
 
-            git submodule foreach --recursive "git clean -dfx"
-            git clean -dfx
-            git submodule foreach --recursive "git reset --hard"
-            git reset --hard
-
-            if ! git checkout "$GIT_BRANCH"; then
+            if ! ( git checkout "$GIT_BRANCH" ) ; then
 
                 echo ""
                 echo "    Can't switch to $GIT_BRANCH branch!"
@@ -95,7 +123,7 @@ fi
                 exit 4
             fi
 
-            if ! ./Setup.sh ; then
+            if ! ( ./Setup.sh ) ; then
 
                 echo ""
                 echo "    Setup was Failed!"
@@ -104,7 +132,7 @@ fi
                 exit 5
             fi
 
-            if ! ./GenerateProjectFiles.sh ; then
+            if ! ( ./GenerateProjectFiles.sh ) ; then
 
                 echo ""
                 echo "    GenerateProjectFiles was Failed!"
@@ -129,7 +157,7 @@ fi
 
         if [ $IS_KDE_NEON ]; then qdbus org.kde.KWin /Compositor suspend ; fi
 
-        if ! make ; then
+        if ! ( make ) ; then
 
             echo ""
             echo "    Making process was Failed!"
