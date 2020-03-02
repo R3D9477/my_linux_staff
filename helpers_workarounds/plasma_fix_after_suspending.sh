@@ -22,8 +22,12 @@ function fix_apps() {
 dbus-monitor --system "type='signal',interface='org.freedesktop.login1.Manager',member=PrepareForSleep" | while read x; do
     case "$x" in
         *"boolean false"*)
-            fix_plasma
-            fix_apps
+            if [ ! -f "/tmp/plasma_fix.lock" ] ; then
+                echo 1 > "/tmp/plasma_fix.lock"
+                fix_plasma
+                fix_apps
+                rm "/tmp/plasma_fix.lock"
+            fi
         ;;
     esac
 done
