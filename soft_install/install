@@ -4,7 +4,7 @@ source /etc/os-release
 
 if ! [ -z "$(cat /etc/os-release | grep "ID=neon")" ] ; then IS_KDE_NEON=1 ; fi
 
-if [ $IS_KDE_NEON ]; then
+if [[ $IS_KDE_NEON ]] ; then
     IFS='.' read -r -a PLASMA_VERSION <<< $(plasmashell --version | grep plasma | cut -d ' ' -f2)
 fi
 
@@ -16,7 +16,7 @@ function update_system() {
 
     sudo apt -f install -y
 
-    if [ $IS_KDE_NEON ]; then
+    if [[ $IS_KDE_NEON ]] ; then
         # KDE Neon
         if ! ( pkcon refresh ) ; then
             echo "FAILED TO UPDATE SYSTEM (pkcon)"
@@ -38,10 +38,10 @@ function update_system() {
 
 function get_local() {
 
-    if ! [ -f "$PKG_ARCHIVE/$1" ]; then
+    if ! [ -f "$PKG_ARCHIVE/$1" ] ; then
         mkdir -p "$PKG_ARCHIVE"
 
-        if [ -d "$PKG_ARCHIVE" ]; then
+        if [ -d "$PKG_ARCHIVE" ] ; then
             if ( wget -nc -O "$PKG_ARCHIVE/$1" "$2" ) ; then
                 return 0
             fi
@@ -58,20 +58,20 @@ function install_local_solo_lpkg() {
 
     PKG_NAME="$1"
 
-    if ! [ -f "$PKG_NAME" ]; then
-        if   [ -f "$PKG_NAME.deb" ]; then PKG_NAME="$PKG_NAME.deb";
-        elif [ -f "$PKG_NAME.flatpakref" ]; then PKG_NAME="$PKG_NAME.flatpakref";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME" ]; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.deb" ]; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.deb";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.flatpakref" ]; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.flatpakref";
+    if ! [ -f "$PKG_NAME" ] ; then
+        if   [ -f "$PKG_NAME.deb" ] ; then PKG_NAME="$PKG_NAME.deb";
+        elif [ -f "$PKG_NAME.flatpakref" ] ; then PKG_NAME="$PKG_NAME.flatpakref";
+        elif [ -f "$PKG_ARCHIVE/$PKG_NAME" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME";
+        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.deb" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.deb";
+        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.flatpakref" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.flatpakref";
         else unset PKG_NAME
         fi
     fi
 
-    if ! [ -z "$PKG_NAME" ]; then
+    if [[ $PKG_NAME ]] ; then
         if ( sudo pkcon install-local "$PKG_NAME" -y ) ; then
 
-            if [[ "$PKG" =~ ".flatpakref"$ ]]; then
+            if [[ "$PKG" =~ ".flatpakref"$ ]] ; then
                 sudo flatpak override "$PKG_NAME" --filesystem=/media --filesystem=/mnt --filesystem=/run/media --filesystem=/run/mnt
             fi
 
@@ -95,7 +95,7 @@ function install_lpkg() {
         fi
     done
 
-    if [[ ! -z ${REMOTE_PKGS[@]} ]]; then
+    if [[ ! -z ${REMOTE_PKGS[@]} ]] ; then
         if ! ( sudo apt install --install-recommends ${REMOTE_PKGS[@]} -y ) ; then
             if ! ( sudo apt -f install -y ) ; then
                 echo "INSTALLATION WAS FAILED (apt)"
