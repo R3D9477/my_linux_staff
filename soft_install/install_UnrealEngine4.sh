@@ -93,7 +93,7 @@ fi
             git submodule foreach --recursive "git clean -dfx"
             git clean -dfx
             git submodule foreach --recursive "git reset --hard HEAD"
-            git reset --hard HEAD
+            git reset --hard origin/$GIT_BRANCH
 
             git pull
         fi
