@@ -17,21 +17,21 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
-while getopts "s:t:u:p:b:m:e:d:r:" opt; do
-    case "$opt" in
-        d) DELETE_IF_EXISTS=1       ;;
-        s) SKIP_DEPS=1              ;;
-        t) TARGET_DIR=${OPTARG}     ;;
-        u) GIT_USER=${OPTARG}       ;;
-        p) GIT_PASS=${OPTARG}       ;;
-        b) GIT_BRANCH=${OPTARG}     ;;
-        m) MAKEONLY=1               ;;
-        e) ENABLE_OPENGL=1          ;;
-        d) unset ENABLE_OPENGL      ;;
-        r) IFS=' ' read -r -a AUTORUN_ARGS <<< ${OPTARG} ;;
+for ARG in "$@" ; do
+    case "$ARG" in
+        -d*) DELETE_IF_EXISTS=1         ;;
+        -s*) SKIP_DEPS=1                ;;
+        -t*) TARGET_DIR="${ARG#*=}"     ;;
+        -u*) GIT_USER="${ARG#*=}"       ;;
+        -p*) GIT_PASS="${ARG#*=}"       ;;
+        -b*) GIT_BRANCH="${ARG#*=}"     ;;
+        -m*) MAKEONLY=1                 ;;
+        -e*) ENABLE_OPENGL=1            ;;
+        -d*) unset ENABLE_OPENGL        ;;
+        -r*) eval 'for UE4_ARG in '"${ARG#*=}"'; do AUTORUN_ARGS+=("$UE4_ARG"); done' ;;
         *)
             echo ""
-            echo "    Invalid argument(s)!"
+            echo "    Invalid argument: "${ARG#*=}" !"
             echo ""
 
             exit 1 ;;
@@ -40,7 +40,7 @@ done
 
 #--------------------------------------------------------------------------------------------------
 
-if ! [ $SKIP_DEPS ]; then
+if ! [[ $SKIP_DEPS ]] ; then
 
     update_system
 
@@ -76,7 +76,7 @@ fi
     echo ""
 
     if [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
-        if [ $DELETE_IF_EXISTS ]; then
+        if [[ $DELETE_IF_EXISTS ]] ; then
 
             echo ""
             echo "    Remove existing sources and do a clean install: UnrealEngine-$GIT_BRANCH"
@@ -99,7 +99,7 @@ fi
         fi
     fi
 
-    if ! [ -d "UnrealEngine-$GIT_BRANCH" ]; then
+    if ! [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
         if ! ( git clone "https://$GIT_USER:$GIT_PASS@github.com/EpicGames/UnrealEngine.git" "UnrealEngine-$GIT_BRANCH" ) ; then
 
             echo ""
@@ -112,7 +112,7 @@ fi
 
     pushd "UnrealEngine-$GIT_BRANCH"
 
-        if ! [ $MAKEONLY ]; then
+        if ! [[ $MAKEONLY ]] ; then
 
             if ! ( git checkout "$GIT_BRANCH" ) ; then
 
@@ -146,7 +146,7 @@ fi
             echo ""
         fi
 
-        if [ $ENABLE_OPENGL ]; then
+        if [[ $ENABLE_OPENGL ]] ; then
 
             # enable OpenGL target
             sed -i 's/.*;.*+TargetedRHIs=GLSL_430/+TargetedRHIs=GLSL_430/g' "Engine/Config/BaseEngine.ini"
@@ -155,7 +155,7 @@ fi
             sed -i 's/FMessageDialog.*LinuxDynamicRHI.*OpenGLDeprecated.*OpenGL.*deprecated.*;//g' "Engine/Source/Runtime/RHI/Private/Linux/LinuxDynamicRHI.cpp"
         fi
 
-        if [ $IS_KDE_NEON ]; then qdbus org.kde.KWin /Compositor suspend ; fi
+        if [[ $IS_KDE_NEON ]] ; then qdbus org.kde.KWin /Compositor suspend ; fi
 
         if ! ( make ) ; then
 
@@ -166,9 +166,9 @@ fi
             exit 7
         fi
 
-        if [ $AUTORUN_ARGS ]; then exec "Engine/Binaries/Linux/UE4Editor" $AUTORUN_ARGS ; fi
+        if [[ $AUTORUN_ARGS ]] ; then exec "Engine/Binaries/Linux/UE4Editor" $AUTORUN_ARGS ; fi
 
-        if [ $IS_KDE_NEON ]; then qdbus org.kde.KWin /Compositor resume ; fi
+        if [[ $IS_KDE_NEON ]] ; then qdbus org.kde.KWin /Compositor resume ; fi
 
     popd
 
