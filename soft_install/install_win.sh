@@ -26,5 +26,6 @@ update_system
 
 install_lpkg        \
     wine-staging    \
+    winetricks      \
     playonlinux     \
     lutris
