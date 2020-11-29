@@ -1,0 +1,38 @@
+[Audio Preview Settings]
+Autoplay=false
+
+[CompactMode]
+FontWeight=50
+PreviewSize=22
+
+[Desktop Entry]
+DefaultProfile=Profile 1.profile
+
+[DetailsMode]
+FontWeight=50
+PreviewSize=22
+
+[General]
+ConfirmClosingMultipleTabs=false
+GlobalViewProps=false
+
+[IconsMode]
+FontWeight=50
+PreviewSize=112
+
+[KFileDialog Settings]
+detailViewIconSize=0
+
+[MainWindow]
+MenuBar=Disabled
+ToolBarsMovable=Disabled
+
+[Notification Messages]
+ConfirmDelete=true
+
+[Open-with settings]
+CompletionMode=1
+History=kdi,kate,Dol,kfind,open,kfin,vlc,mono,kw,gui,qt,kon,ste,kwri,kwrit
+
+[PreviewSettings]
+Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,svgthumbnail

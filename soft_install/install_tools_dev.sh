@@ -5,14 +5,11 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
+sudo add-apt-repository --no-update --yes ppa:maarten-fonville/android-studio
+
 update_system
 
 install_lpkg                    \
-    kcolorchooser               \
-    kolourpaint                 \
-    krita                       \
-    inkscape
-
-install_snap                    \
-    gravit-designer             \
-    "blender --classic"
+    openjdk-8-jdk               \
+    openjdk-11-jre-headless     \
+    android-studio

@@ -5,9 +5,12 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
+sudo add-apt-repository --no-update --yes ppa:yannubuntu/boot-repair
+
 update_system
 
 install_lpkg                    \
+    boot-repair                 \
     htop                        \
     xterm                       \
     thefuck                     \

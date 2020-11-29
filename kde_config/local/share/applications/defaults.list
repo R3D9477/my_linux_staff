@@ -1,0 +1,2 @@
+[Default Applications]
+application/uproject=com.epicgames.UnrealVersionSelector.desktop;com.epicgames.UnrealEngine.desktop;com.epicgames.UnrealEngineEditor.desktop

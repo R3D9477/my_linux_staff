@@ -1,16 +1,49 @@
+
+function show_message() {
+
+    echo ""
+    for MSG in "$@" ; do echo "    ${MSG}" ; done
+    echo ""
+}
+export -f show_message
+
+function exportdefvar() {
+    export $1=${!1:="$2"}
+}
+export -f exportdefvar
+
+SECONDS=0
+function showElapsedTime() {
+
+    duration=${SECONDS}
+    show_message "$((${duration} / 60)) min. $((${duration} % 60)) sec. elapsed"
+}
+export -f showElapsedTime
+
+function goto_exit() {
+    showElapsedTime
+    if ( [[ $# != 0 ]] && [[ $1 != 0 ]] ) ; then
+        show_message "ERROR CODE: $@"
+        exit $@
+    fi
+}
+export -f goto_exit
+
+#------------------------------------------------------------------------------------------------------
+
 SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
 
 source /etc/os-release
 
-if ! [ -z "$(cat /etc/os-release | grep "ID=neon")" ] ; then IS_KDE_NEON=1 ; fi
+if ! [ -z "$(cat /etc/os-release | grep "ID=neon")" ] ; then export IS_KDE_NEON=1 ; fi
 
-if [[ $IS_KDE_NEON ]] ; then
-    IFS='.' read -r -a PLASMA_VERSION <<< $(plasmashell --version | grep plasma | cut -d ' ' -f2)
-fi
+if [[ $IS_KDE_NEON ]] ; then export IFS='.' read -r -a PLASMA_VERSION <<< $(plasmashell --version | grep plasma | cut -d ' ' -f2) ; fi
 
-PKG_ARCHIVE="/tmp/pkgarch"
+if [[ `echo $XDG_CURRENT_DESKTOP` == "KDE" ]] ; then export IS_KDE=1 ; fi
 
-#--------------------------------------------------------------------------------------------------
+export PKG_ARCHIVE="/tmp/pkgarch"
+
+#------------------------------------------------------------------------------------------------------
 
 function update_system() {
 
@@ -19,15 +52,15 @@ function update_system() {
     if [[ $IS_KDE_NEON ]] ; then
         # KDE Neon
         if ! ( pkcon refresh ) ; then
-            echo "FAILED TO UPDATE SYSTEM (pkcon)"
-            exit 1
+            show_message "FAILED TO UPDATE SYSTEM (pkcon)"
+            goto_exit 1
         fi
         pkcon update -y
     else
         # Ubuntu
         if ! ( sudo apt update && sudo apt upgrade -y ) ; then
-            echo "FAILED TO UPDATE SYSTEM (apt)"
-            exit 1
+            show_message "FAILED TO UPDATE SYSTEM (apt)"
+            goto_exit 1
         fi
     fi
 
@@ -47,8 +80,8 @@ function get_local() {
             fi
         fi
 
-        echo "FAILED TO GET PACKAGE $1"
-        exit 1
+        show_message "FAILED TO GET PACKAGE $1"
+        goto_exit 1
     fi
 
     return 0
@@ -78,8 +111,8 @@ function install_local_solo_lpkg() {
             return 0;
         fi
 
-        echo "INSTALLATION WAS FAILED (pkcon-local)"
-        exit 1
+        show_message "INSTALLATION WAS FAILED (pkcon-local)"
+        goto_exit 1
     fi
 
     return 1;
@@ -98,8 +131,8 @@ function install_lpkg() {
     if [[ ! -z ${REMOTE_PKGS[@]} ]] ; then
         if ! ( sudo apt install --install-recommends ${REMOTE_PKGS[@]} -y ) ; then
             if ! ( sudo apt -f install -y ) ; then
-                echo "INSTALLATION WAS FAILED (apt)"
-                exit 1
+                show_message "INSTALLATION WAS FAILED (apt)"
+                goto_exit 1
             fi
         fi
     fi
@@ -110,8 +143,8 @@ function install_lpkg() {
 function install_snap() {
     for SNAP_PKG_NAME in "$@" ; do
         if ! ( sudo snap install $SNAP_PKG_NAME ) ; then
-            echo "INSTALLATION OF $SNAP_PKG_NAME WAS FAILED (snap)"
-            exit 1
+            show_message "INSTALLATION OF $SNAP_PKG_NAME WAS FAILED (snap)"
+            goto_exit 1
         fi
     done
 }

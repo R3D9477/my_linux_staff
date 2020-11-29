@@ -1,44 +1,28 @@
 #!/bin/bash
 
-TARGET_DIR="/home/$USER"
-
-GIT_USER=
-GIT_PASS=
-GIT_BRANCH="release"
-
-ENABLE_OPENGL=1
-
-AUTORUN_ARGS=()
-
-#--------------------------------------------------------------------------------------------------
-
+DESKTOP_PATH="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
 SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
 source "$SCRIPT_SRC_DIR/install"
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 
-for ARG in "$@" ; do
-    case "$ARG" in
-        -d*) DELETE_IF_EXISTS=1         ;;
-        -s*) SKIP_DEPS=1                ;;
-        -t*) TARGET_DIR="${ARG#*=}"     ;;
-        -u*) GIT_USER="${ARG#*=}"       ;;
-        -p*) GIT_PASS="${ARG#*=}"       ;;
-        -b*) GIT_BRANCH="${ARG#*=}"     ;;
-        -m*) MAKEONLY=1                 ;;
-        -e*) ENABLE_OPENGL=1            ;;
-        -d*) unset ENABLE_OPENGL        ;;
-        -r*) eval 'for UE4_ARG in '"${ARG#*=}"'; do AUTORUN_ARGS+=("$UE4_ARG"); done' ;;
-        *)
-            echo ""
-            echo "    Invalid argument: "${ARG#*=}" !"
-            echo ""
+exportdefvar TARGET_DIR         "$HOME"
 
-            exit 1 ;;
-    esac
-done
+exportdefvar GIT_USER           ""
+exportdefvar GIT_PASS           ""
+exportdefvar GET_REPO           "github.com/EpicGames/UnrealEngine.git"
+exportdefvar GIT_BRANCH         "release"
 
-#--------------------------------------------------------------------------------------------------
+exportdefvar ENABLE_OPENGL      n
+exportdefvar DELETE_IF_EXISTS   y
+exportdefvar GIT_RESET          y
+exportdefvar SDK_RESET          y
+exportdefvar CLEAN_BUILD        y
+exportdefvar CLEAN_RELEASE      y
+exportdefvar AUTORUN_EDITOR     y
+exportdefvar AUTORUN_ARGS       ""
+
+#------------------------------------------------------------------------------------------------------
 
 if ! [[ $SKIP_DEPS ]] ; then
 
@@ -65,88 +49,93 @@ fi
 
 if ! pushd "$TARGET_DIR" ; then
 
-    echo ""
-    echo "    Target dir is not exists!"
-    echo ""
-
-    exit 2
+    show_message "Target dir is not exists!"
+    goto_exit 2
 fi
-    echo ""
-    echo "    Installation path: $TARGET_DIR/UnrealEngine-$GIT_BRANCH"
-    echo ""
+    show_message "Installation path: $TARGET_DIR/UnrealEngine-$GIT_BRANCH"
 
     if [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
-        if [[ $DELETE_IF_EXISTS ]] ; then
+        if [[ $DELETE_IF_EXISTS == "y" ]] ; then
 
-            echo ""
-            echo "    Remove existing sources and do a clean install: UnrealEngine-$GIT_BRANCH"
-            echo ""
+            show_message "Remove existing sources and do a clean install: UnrealEngine-$GIT_BRANCH"
 
             rm -rf "UnrealEngine-$GIT_BRANCH"
+
         else
-            echo ""
-            echo "    Update existing sources: UnrealEngine-$GIT_BRANCH"
-            echo ""
 
-            git fetch --all
+            show_message " Update existing sources: UnrealEngine-$GIT_BRANCH"
 
-            git submodule foreach --recursive "git clean -dfx"
-            git clean -dfx
-            git submodule foreach --recursive "git reset --hard HEAD"
-            git reset --hard origin/$GIT_BRANCH
+            pushd "UnrealEngine-$GIT_BRANCH"
 
-            git pull
+                if [[ $GIT_RESET == "y" ]] ; then
+                    git fetch --all
+                    git submodule foreach --recursive "git clean -dfx"
+                    git clean -dfx
+                    git submodule foreach --recursive "git reset --hard HEAD"
+                    git reset --hard origin/$GIT_BRANCH
+                    git pull
+                fi
+
+                if [[ $SDK_RESET == "y" ]] ; then
+                    rm -rf "Engine/Extras/ThirdPartyNotUE/SDKs"
+                    rm -rf ".git/ue4-gitdeps"
+                    rm -rf ".git/ue4-sdks"
+                fi
+            popd
         fi
     fi
 
     if ! [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
-        if ! ( git clone "https://$GIT_USER:$GIT_PASS@github.com/EpicGames/UnrealEngine.git" "UnrealEngine-$GIT_BRANCH" ) ; then
+        if ! ( git clone "https://$GIT_USER:$GIT_PASS@$GIT_REPO" "UnrealEngine-$GIT_BRANCH" ) ; then
 
-            echo ""
-            echo "    Can't clone UnrealEngine from remote branch!"
-            echo ""
-
-            exit 3
+            show_message "Can't clone UnrealEngine from remote branch!"
+            goto_exit 3
         fi
     fi
 
     pushd "UnrealEngine-$GIT_BRANCH"
 
-        if ! [[ $MAKEONLY ]] ; then
+        if [[ $MAKEONLY != "y" ]] ; then
 
+            rm ".git/index.lock"
             if ! ( git checkout "$GIT_BRANCH" ) ; then
 
-                echo ""
-                echo "    Can't switch to $GIT_BRANCH branch!"
-                echo ""
-
-                exit 4
+                show_message "Can't switch to $GIT_BRANCH branch!"
+                goto_exit 4
             fi
 
-            if ! ( ./Setup.sh ) ; then
+            # don't use curl to avoid:
+            #Installing a bundled clang toolchain
+            #Downloading toolchain: http://cdn.unrealengine.com/Toolchain_Linux/native-linux-v16_clang-9.0.1-centos7.tar.gz
+            #% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+            #                                Dload  Upload   Total   Spent    Left  Speed
+            #0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+            #Extracting toolchain.
+            #tar: This does not look like a tar archive
+            #gzip: stdin: unexpected end of file
+            #tar: Child returned status 1
+            #tar: Error is not recoverable: exiting now
+            sed -i "s#if which curl 1>/dev/null; then#if [ '' ] ; then#g" "Engine/Build/BatchFiles/Linux/SetupToolchain.sh"
 
-                echo ""
-                echo "    Setup was Failed!"
-                echo ""
+            if ! ( eval "echo y | ./Setup.sh" ) ; then
 
-                exit 5
+                show_message "Setup was Failed!"
+                goto_exit 5
             fi
+
+            sleep 3s ; sync
 
             if ! ( ./GenerateProjectFiles.sh ) ; then
 
-                echo ""
-                echo "    GenerateProjectFiles was Failed!"
-                echo ""
-
-                exit 6
+                show_message "GenerateProjectFiles was Failed!"
+                goto_exit 6
             fi
-        else
-            echo ""
-            echo "    Make only!"
-            echo ""
-        fi
 
-        if [[ $ENABLE_OPENGL ]] ; then
+            sleep 3s ; sync
+
+        else show_message "Make only!" ; fi
+
+        if [[ $ENABLE_OPENGL == "y" ]] ; then
 
             # enable OpenGL target
             sed -i 's/.*;.*+TargetedRHIs=GLSL_430/+TargetedRHIs=GLSL_430/g' "Engine/Config/BaseEngine.ini"
@@ -155,20 +144,66 @@ fi
             sed -i 's/FMessageDialog.*LinuxDynamicRHI.*OpenGLDeprecated.*OpenGL.*deprecated.*;//g' "Engine/Source/Runtime/RHI/Private/Linux/LinuxDynamicRHI.cpp"
         fi
 
-        if [[ $IS_KDE_NEON ]] ; then qdbus org.kde.KWin /Compositor suspend ; fi
+        if [[ $IS_KDE ]] ; then qdbus org.kde.KWin /Compositor suspend ; fi
+
+        TC_VER=`realpath Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v*clang*`/ToolchainVersion.txt
+        if ! [ -f "$TC_VER" ] ; then echo `ls Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64` > "$TC_VER" ; fi
+
+        if [[ $CLEAN_BUILD == "y" ]] ; then make ARGS=-clean ; fi
 
         if ! ( make ) ; then
 
-            echo ""
-            echo "    Making process was Failed!"
-            echo ""
-
-            exit 7
+            show_message "Making process was Failed!"
+            goto_exit 7
         fi
 
-        if [[ $AUTORUN_ARGS ]] ; then exec "Engine/Binaries/Linux/UE4Editor" $AUTORUN_ARGS ; fi
+        if ! ( make ShaderCompileWorker ) ; then
 
-        if [[ $IS_KDE_NEON ]] ; then qdbus org.kde.KWin /Compositor resume ; fi
+            show_message "Making process was Failed!"
+            goto_exit 8
+        fi
+
+        if [[ $CLEAN_RELEASE == "y" ]] ; then
+
+            rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/.git"
+            rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Source"
+            rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Intermidiate"
+        fi
+
+        cp "$SCRIPT_SRC_DIR/UE4.png" "./"
+
+        echo "#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=UE4Editor
+Comment=Unreal Engine 4 Editor
+Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor
+Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/UE4.png
+Terminal=false
+Type=Application
+Categories=Game;" | tee "$DESKTOP_PATH/UE4Editor.desktop"
+        chmod +x "$DESKTOP_PATH/UE4Editor.desktop"
+
+        if [[ $ENABLE_OPENGL == "y" ]] ; then
+
+            echo "#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=UE4Editor (OpenGL)
+Comment=Unreal Engine 4 Editor (OpenGL)
+Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor -opengl4
+Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/UE4.png
+Terminal=false
+Type=Application
+Categories=Game;" | tee "$DESKTOP_PATH/UE4EditorOGL.desktop"
+            chmod +x "$DESKTOP_PATH/UE4EditorOGL.desktop"
+
+            if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
+                export $AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
+            fi
+        fi
+
+        if [[ $IS_KDE ]] ; then qdbus org.kde.KWin /Compositor resume ; fi
+
+        if [[ $AUTORUN_EDITOR == "y" ]] ; then exec "Engine/Binaries/Linux/UE4Editor" $AUTORUN_ARGS ; fi
 
     popd
 
