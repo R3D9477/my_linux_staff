@@ -8,7 +8,7 @@ function show_message() {
 export -f show_message
 
 function exportdefvar() {
-    export $1=${!1:="$2"}
+    if ( ! [ "${!1}" ] && [ "$2" ] ) ; then eval "export $1=\"${2}\"" ; fi
 }
 export -f exportdefvar
 
@@ -37,7 +37,10 @@ source /etc/os-release
 
 if ! [ -z "$(cat /etc/os-release | grep "ID=neon")" ] ; then export IS_KDE_NEON=1 ; fi
 
-if [[ $IS_KDE_NEON ]] ; then export IFS='.' read -r -a PLASMA_VERSION <<< $(plasmashell --version | grep plasma | cut -d ' ' -f2) ; fi
+if [[ $IS_KDE_NEON ]] ; then
+    export IFS='.'
+    read -r -a PLASMA_VERSION <<< $(plasmashell --version | grep plasma | cut -d ' ' -f2)
+fi
 
 if [[ `echo $XDG_CURRENT_DESKTOP` == "KDE" ]] ; then export IS_KDE=1 ; fi
 

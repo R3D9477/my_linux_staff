@@ -10,12 +10,13 @@ exportdefvar TARGET_DIR         "$HOME"
 
 exportdefvar GIT_USER           ""
 exportdefvar GIT_PASS           ""
-exportdefvar GET_REPO           "github.com/EpicGames/UnrealEngine.git"
+exportdefvar GIT_REPO           "github.com/EpicGames/UnrealEngine.git"
 exportdefvar GIT_BRANCH         "release"
 
+exportdefvar SKIP_DEPS          ""
 exportdefvar ENABLE_OPENGL      n
-exportdefvar DELETE_IF_EXISTS   y
-exportdefvar GIT_RESET          y
+exportdefvar DELETE_IF_EXISTS   n
+exportdefvar GIT_UPGRADE        y
 exportdefvar SDK_RESET          y
 exportdefvar CLEAN_BUILD        y
 exportdefvar CLEAN_RELEASE      y
@@ -64,16 +65,20 @@ fi
         else
 
             show_message " Update existing sources: UnrealEngine-$GIT_BRANCH"
+            show_message " Source URL: https://$GIT_USER:$GIT_PASS@$GIT_REPO"
 
             pushd "UnrealEngine-$GIT_BRANCH"
 
-                if [[ $GIT_RESET == "y" ]] ; then
-                    git fetch --all
+                if [[ $GIT_UPGRADE == "y" ]] ; then
+                    git init
+                    git remote remove origin
+                    git remote add origin "https://$GIT_USER:$GIT_PASS@$GIT_REPO"
+                    git fetch origin
                     git submodule foreach --recursive "git clean -dfx"
                     git clean -dfx
                     git submodule foreach --recursive "git reset --hard HEAD"
                     git reset --hard origin/$GIT_BRANCH
-                    git pull
+                    git pull origin $GIT_BRANCH
                 fi
 
                 if [[ $SDK_RESET == "y" ]] ; then
@@ -86,7 +91,7 @@ fi
     fi
 
     if ! [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
-        if ! ( git clone "https://$GIT_USER:$GIT_PASS@$GIT_REPO" "UnrealEngine-$GIT_BRANCH" ) ; then
+        if ! ( git clone --single-branch "https://$GIT_USER:$GIT_PASS@$GIT_REPO" "UnrealEngine-$GIT_BRANCH" ) ; then
 
             show_message "Can't clone UnrealEngine from remote branch!"
             goto_exit 3
@@ -94,6 +99,9 @@ fi
     fi
 
     pushd "UnrealEngine-$GIT_BRANCH"
+
+        # parse file and print version
+        # /Engine/Build/Build.version
 
         if [[ $MAKEONLY != "y" ]] ; then
 
@@ -170,17 +178,15 @@ fi
             rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Intermidiate"
         fi
 
-        cp "$SCRIPT_SRC_DIR/UE4.png" "./"
-
         echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=UE4Editor
 Comment=Unreal Engine 4 Editor
 Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor
-Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/UE4.png
+Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game;" | tee "$DESKTOP_PATH/UE4Editor.desktop"
+Categories=Game" | tee "$DESKTOP_PATH/UE4Editor.desktop"
         chmod +x "$DESKTOP_PATH/UE4Editor.desktop"
 
         if [[ $ENABLE_OPENGL == "y" ]] ; then
@@ -190,14 +196,14 @@ Categories=Game;" | tee "$DESKTOP_PATH/UE4Editor.desktop"
 Name=UE4Editor (OpenGL)
 Comment=Unreal Engine 4 Editor (OpenGL)
 Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor -opengl4
-Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/UE4.png
+Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game;" | tee "$DESKTOP_PATH/UE4EditorOGL.desktop"
+Categories=Game" | tee "$DESKTOP_PATH/UE4EditorOGL.desktop"
             chmod +x "$DESKTOP_PATH/UE4EditorOGL.desktop"
 
             if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
-                export $AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
+                export AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
             fi
         fi
 
