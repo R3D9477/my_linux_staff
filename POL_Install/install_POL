@@ -1,0 +1,54 @@
+function POL_install_pkg() {
+    pushd "${POL_System_TmpDir}"
+        if ! [ -z "$(dirname $1)" ] ; then pushd "$(dirname $1)" ; fi
+        PKG_EXT=`echo "${1##*.}" | awk '{print tolower($0)}'`
+        if   [ "${PKG_EXT}" == "msi" ] ; then echo "POL_Wine msiexec /i $(basename $1) ${*:2}"
+        elif [ "${PKG_EXT}" == "exe" ] ; then echo "POL_Wine $(basename $1) ${*:2}"
+        fi
+        if ! [ -z "$(dirname $1)" ] ; then popd ; fi
+    popd
+}
+
+function POL_extract_arch() {
+    PKG_EXT="${1##*.}"
+    if [ "${PKG_EXT}" == "zip" ] ; then
+        PKG_FILE=$(basename -- "$1")
+        PKG_NAME="${PKG_FILE%.*}"
+        if ! [ -d "${PKG_NAME}" ] ; then
+            mkdir -p "${PKG_NAME}"
+            unzip "${PKG_FILE}" -d "${PKG_NAME}"
+        fi
+        return 0
+    fi
+    return 1
+}
+
+function POL_download_and_install() {
+    pushd "${POL_System_TmpDir}"
+        PKG_FILE=$(basename -- "$1")
+        if [ -z "$2" ] ; then PKG_INSTALLER="${PKG_FILE}"
+        else PKG_INSTALLER="$2"
+        fi
+        PKG_EXT="${PKG_INSTALLER##*.}"
+        if ( ! [ -f "${PKG_FILE}" ] && ! [ -f "${PKG_INSTALLER}" ] ) ; then
+            POL_Download "$1"
+        fi
+        if POL_extract_arch "${PKG_FILE}" ; then
+            PKG_NAME="${PKG_FILE%.*}"
+            POL_install_pkg "${PKG_NAME}/${PKG_INSTALLER}" ${*:3}
+        else
+            mv "${PKG_FILE}" "${PKG_INSTALLER}"
+            POL_install_pkg "${PKG_INSTALLER}" ${*:3}
+        fi
+    popd
+}
+
+function POL_winetricks_install() {
+    pushd "${POL_System_TmpDir}"
+        if ! [ -f winetricks ] ; then
+            POL_Download_Resource  "https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks"
+            chmod +x winetricks
+        fi
+        ./winetricks "$1"
+    popd
+}

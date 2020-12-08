@@ -1,6 +1,5 @@
 #!/bin/bash
 
-DESKTOP_PATH="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
 SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
 source "$SCRIPT_SRC_DIR/install"
 
@@ -16,9 +15,9 @@ exportdefvar GIT_BRANCH         "release"
 exportdefvar SKIP_DEPS          ""
 exportdefvar ENABLE_OPENGL      n
 exportdefvar DELETE_IF_EXISTS   n
-exportdefvar GIT_UPGRADE        y
-exportdefvar SDK_RESET          y
-exportdefvar CLEAN_BUILD        y
+exportdefvar GIT_RESET          n
+exportdefvar SDK_RESET          n
+exportdefvar CLEAN_BUILD        n
 exportdefvar CLEAN_RELEASE      y
 exportdefvar AUTORUN_EDITOR     y
 exportdefvar AUTORUN_ARGS       ""
@@ -27,7 +26,7 @@ exportdefvar AUTORUN_ARGS       ""
 
 if ! [[ $SKIP_DEPS ]] ; then
 
-    update_system
+  #  update_system
 
     install_lpkg                \
         build-essential         \
@@ -46,6 +45,9 @@ if ! [[ $SKIP_DEPS ]] ; then
         libclutter-gtk-1.0-0    \
         libclutter-gst-3.0-0    \
         xserver-xorg-input-all
+
+    # FIX for: Engine/Binaries/Linux/UE4Editor: error while loading shared libraries: libfbxsdk.so: cannot open shared object file: No such file or directory
+    bash "${SCRIPT_SRC_DIR}/install_fbxsdk.sh"
 fi
 
 if ! pushd "$TARGET_DIR" ; then
@@ -69,7 +71,7 @@ fi
 
             pushd "UnrealEngine-$GIT_BRANCH"
 
-                if [[ $GIT_UPGRADE == "y" ]] ; then
+                if [[ $GIT_RESET == "y" ]] ; then
                     git init
                     git remote remove origin
                     git remote add origin "https://$GIT_USER:$GIT_PASS@$GIT_REPO"
@@ -91,7 +93,7 @@ fi
     fi
 
     if ! [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
-        if ! ( git clone --single-branch "https://$GIT_USER:$GIT_PASS@$GIT_REPO" "UnrealEngine-$GIT_BRANCH" ) ; then
+        if ! ( git clone -b "$GIT_BRANCH" --single-branch "https://$GIT_USER:$GIT_PASS@$GIT_REPO" "UnrealEngine-$GIT_BRANCH" ) ; then
 
             show_message "Can't clone UnrealEngine from remote branch!"
             goto_exit 3
@@ -173,9 +175,11 @@ fi
 
         if [[ $CLEAN_RELEASE == "y" ]] ; then
 
-            rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/.git"
-            rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Source"
-            rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Intermidiate"
+            show_message "Remove Intermidiate Files..."
+
+            #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/.git"
+            #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Source"
+            #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Intermidiate"
         fi
 
         echo "#!/usr/bin/env xdg-open

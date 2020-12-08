@@ -131,8 +131,8 @@ function install_lpkg() {
         fi
     done
 
-    if [[ ! -z ${REMOTE_PKGS[@]} ]] ; then
-        if ! ( sudo apt install --install-recommends ${REMOTE_PKGS[@]} -y ) ; then
+    if ! [ -z "${REMOTE_PKGS[@]}" ] ; then
+        if ! ( sudo apt install --install-recommends "${REMOTE_PKGS[@]}" -y ) ; then
             if ! ( sudo apt -f install -y ) ; then
                 show_message "INSTALLATION WAS FAILED (apt)"
                 goto_exit 1
