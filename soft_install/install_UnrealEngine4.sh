@@ -12,7 +12,7 @@ exportdefvar GIT_PASS           ""
 exportdefvar GIT_REPO           "github.com/EpicGames/UnrealEngine.git"
 exportdefvar GIT_BRANCH         "release"
 
-exportdefvar SKIP_DEPS          ""
+exportdefvar SKIP_DEPS          n
 exportdefvar ENABLE_OPENGL      n
 exportdefvar DELETE_IF_EXISTS   n
 exportdefvar GIT_RESET          n
@@ -24,7 +24,7 @@ exportdefvar AUTORUN_ARGS       ""
 
 #------------------------------------------------------------------------------------------------------
 
-if ! [[ $SKIP_DEPS ]] ; then
+if [[ $SKIP_DEPS != "y" ]] ; then
 
   #  update_system
 
