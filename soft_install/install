@@ -151,3 +151,12 @@ function install_snap() {
         fi
     done
 }
+
+function install_flatpak() {
+    for FPK_PKG_NAME in "$@" ; do
+        if ! ( eval "flatpak install flathub $FPK_PKG_NAME" ) ; then
+            show_message "INSTALLATION OF $FPK_PKG_NAME WAS FAILED (flatpak)"
+            goto_exit 1
+        fi
+    done
+}
