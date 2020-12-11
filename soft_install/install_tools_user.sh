@@ -41,7 +41,6 @@ install_lpkg            \
     vk                  \
     clamav              \
     clamav-daemon       \
-    libclamunrar*       \
     qbittorrent         \
     qjoypad             \
     tuxguitar           \

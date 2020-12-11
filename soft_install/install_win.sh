@@ -13,9 +13,9 @@ sudo add-apt-repository --no-update --yes multiverse
 
 sudo add-apt-repository --no-update --yes ppa:lutris-team/lutris
 
-wget -O /tmp/Release.key "https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key"
-sudo apt-key add /tmp/Release.key
-sudo apt-add-repository --no-update --yes "deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./"
+#wget -O /tmp/Release.key "https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key"
+#sudo apt-key add /tmp/Release.key
+#sudo apt-add-repository --no-update --yes "deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./"
 
 wget -O /tmp/public.gpg http://deb.playonlinux.com/public.gpg
 sudo apt-key add /tmp/public.gpg
@@ -25,7 +25,7 @@ sudo wget -nc http://deb.playonlinux.com/playonlinux_$UBUNTU_CODENAME.list -O /e
 update_system
 
 install_lpkg        \
-    wine-staging    \
+    wine64          \
     winetricks      \
     playonlinux     \
     lutris

@@ -21,25 +21,19 @@ install_lpkg                    \
     rar unrar                   \
     ppa-purge                   \
     libarchive-zip-perl         \
-    openssl1.0 libssl1.0-dev    \
-    kdelibs5-dbg                \
     muon                        \
     kate                        \
     kfind                       \
     kcalc                       \
     ktorrent                    \
-    kde-runtime                 \
     latte-dock                  \
     kdenetwork-filesharing      \
     partitionmanager            \
-    kde-baseapps-bin            \
-    software-properties-kde     \
     filelight                   \
     filezilla                   \
     samba                       \
     smbclient                   \
     libsmbclient                \
-    python-smbc                 \
     python3-pydbus              \
     python3-construct           \
     kget                        \
@@ -63,8 +57,8 @@ install_lpkg                    \
     gstreamer1.0-pulseaudio     \
     ubuntu-restricted-extras    \
     gnome-disk-utility          \
-    linux-tools-common linux-tools-generic linux-tools-`uname -r`
+    linux-tools-common linux-tools-generic "linux-tools-`uname -r`"
 
-if [ ! -f "/usr/bin/kdesu" ]; then
-    sudo ln -s /etc/alternatives/kdesu /usr/bin/kdesu
-fi
+#if ! [ -f "/usr/bin/kdesu" ]; then
+#    sudo ln -s /etc/alternatives/kdesu /usr/bin/kdesu
+#fi

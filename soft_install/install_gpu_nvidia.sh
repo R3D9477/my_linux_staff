@@ -11,6 +11,8 @@ source "$SCRIPT_SRC_DIR/install"
 
 sudo add-apt-repository --no-update --yes ppa:graphics-drivers/ppa
 
+get_local "phoronix-test-suite.deb" "http://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_10.0.1_all.deb"
+
 update_system
 
 install_lpkg                \

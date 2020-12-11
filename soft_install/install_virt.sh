@@ -22,7 +22,7 @@ install_lpkg                \
 adb shell su -c "ip route add default dev eth0 via 192.168.250.1"
 adb shell su -c "ip rule add pref 32766 table main"
 adb shell su -c "ip rule add pref 32767 table local"
-    
+
 sudo modprobe ashmem_linux
 sudo modprobe binder_linux
 
