@@ -182,7 +182,9 @@ fi
             #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Intermidiate"
         fi
 
-        echo "#!/usr/bin/env xdg-open
+        if [ -d "${XDG_DESKTOP_DIR:-$HOME/Desktop}" ] ; then
+
+            echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=UE4Editor
 Comment=Unreal Engine 4 Editor
@@ -190,12 +192,12 @@ Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor
 Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game" | tee "$DESKTOP_PATH/UE4Editor.desktop"
-        chmod +x "$DESKTOP_PATH/UE4Editor.desktop"
+Categories=Game" | tee "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4Editor.desktop"
+            chmod +x "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4Editor.desktop"
 
-        if [[ $ENABLE_OPENGL == "y" ]] ; then
+            if [[ $ENABLE_OPENGL == "y" ]] ; then
 
-            echo "#!/usr/bin/env xdg-open
+                echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=UE4Editor (OpenGL)
 Comment=Unreal Engine 4 Editor (OpenGL)
@@ -203,11 +205,12 @@ Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor -openg
 Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game" | tee "$DESKTOP_PATH/UE4EditorOGL.desktop"
-            chmod +x "$DESKTOP_PATH/UE4EditorOGL.desktop"
+Categories=Game" | tee "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4EditorOGL.desktop"
+                chmod +x "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4EditorOGL.desktop"
 
-            if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
-                export AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
+                if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
+                    export AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
+                fi
             fi
         fi
 
