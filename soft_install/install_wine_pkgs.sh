@@ -1,7 +1,12 @@
 #!/bin/bash
 
-export WINEPREFIX="${HOME}/.wine32"
-export WINEARCH="win32"
+SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
+source "$SCRIPT_SRC_DIR/install"
+
+#------------------------------------------------------------------------------------------------------
+
+exportdefvar WINEPREFIX "${HOME}/.wine32"
+exportdefvar WINEARCH   "win32"
 
 rm -rf ~/.wine
 rm -rf ~/.wine32

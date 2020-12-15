@@ -1,9 +1,9 @@
 #!/bin/bash
 
-SCRIPT_SRC_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
 source "$SCRIPT_SRC_DIR/install"
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 
 wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 
@@ -26,10 +26,12 @@ get_local "balena-etcher.deb"   "https://github.com/balena-io/etcher/releases/do
 get_local "vnc-viewer.deb"      "https://www.realvnc.com/download/file/viewer.files/VNC-Viewer-6.20.113-Linux-x64.deb"
 get_local "googleearth.deb"     "https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb"
 get_local "virtualbox.deb"      "https://download.virtualbox.org/virtualbox/6.1.2/virtualbox-6.1_6.1.2-135662~Ubuntu~bionic_amd64.deb"
+get_local "Nextcloud.AppImage"  "https://github.com/nextcloud/desktop/releases/download/v3.1.0/Nextcloud-3.1.0-x86_64.AppImage"
 
 update_system
 
 install_lpkg                    \
+    Nextcloud                   \
     woeusb                      \
     balena-etcher               \
     googleearth                 \

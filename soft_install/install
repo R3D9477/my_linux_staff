@@ -1,4 +1,15 @@
 
+if [ -f "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs" ] ; then
+    source "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs"
+fi
+
+export DESKTOP_DIR="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
+export DOWNLOADS_DIR="${XDG_DOWNLOADS_DIR:-$HOME/Downloads}"
+export PKG_ARCHIVE="${DOWNLOADS_DIR}/pkgarch"
+mkdir  "${PKG_ARCHIVE}"
+
+#------------------------------------------------------------------------------------------------------
+
 function show_message() {
 
     echo ""
@@ -43,8 +54,6 @@ if [[ $IS_KDE_NEON ]] ; then
 fi
 
 if [[ `echo $XDG_CURRENT_DESKTOP` == "KDE" ]] ; then export IS_KDE=1 ; fi
-
-export PKG_ARCHIVE="/tmp/pkgarch"
 
 #------------------------------------------------------------------------------------------------------
 
@@ -100,21 +109,24 @@ function install_local_solo_lpkg() {
         elif [ -f "$PKG_ARCHIVE/$PKG_NAME" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME";
         elif [ -f "$PKG_ARCHIVE/$PKG_NAME.deb" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.deb";
         elif [ -f "$PKG_ARCHIVE/$PKG_NAME.flatpakref" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.flatpakref";
+        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.AppImage" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.AppImage";
         else unset PKG_NAME
         fi
     fi
 
     if [[ $PKG_NAME ]] ; then
         if ( sudo pkcon install-local "$PKG_NAME" -y ) ; then
-
-            if [[ "$PKG" =~ ".flatpakref"$ ]] ; then
+            if [[ "$PKG" =~ ".flatpakref" ]] ; then
                 sudo flatpak override "$PKG_NAME" --filesystem=/media --filesystem=/mnt --filesystem=/run/media --filesystem=/run/mnt
             fi
-
             return 0;
+        elif ( [ "$PKG" =~ ".AppImage" ] && [ -f "`whereis AppImageLauncher | awk '{print $2}'`" ] ) ; then
+            if ( eval AppImageLauncher "$PKG" ) ; then
+                return 0
+            fi
         fi
 
-        show_message "INSTALLATION WAS FAILED (pkcon-local)"
+        show_message "INSTALLATION WAS FAILED (pkcon-local, AppImageLauncher)"
         goto_exit 1
     fi
 
@@ -160,7 +172,3 @@ function install_flatpak() {
         fi
     done
 }
-
-#------------------------------------------------------------------------------------------------------
-
-test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && source ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs

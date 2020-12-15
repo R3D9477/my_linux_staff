@@ -1,9 +1,9 @@
 #!/bin/bash
 
-SCRIPT_SRC_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
 source "$SCRIPT_SRC_DIR/install"
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 
 sudo dpkg --add-architecture i386
 

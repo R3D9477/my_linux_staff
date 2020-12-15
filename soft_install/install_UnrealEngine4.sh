@@ -13,12 +13,15 @@ exportdefvar GIT_REPO           "github.com/EpicGames/UnrealEngine.git"
 exportdefvar GIT_BRANCH         "release"
 
 exportdefvar SKIP_DEPS          n
+exportdefvar ANDROID_SUPPORT    y
 exportdefvar ENABLE_OPENGL      n
-exportdefvar DELETE_IF_EXISTS   n
-exportdefvar GIT_RESET          n
-exportdefvar SDK_RESET          n
+exportdefvar DELETE_IF_EXISTS   y
+exportdefvar GIT_RESET          y
+exportdefvar SDK_RESET          y
 exportdefvar CLEAN_BUILD        n
-exportdefvar CLEAN_RELEASE      y
+exportdefvar FINAL_RM_GIT       y
+exportdefvar FINAL_RM_MAC       y
+exportdefvar FINAL_RM_WIN       y
 exportdefvar AUTORUN_EDITOR     y
 exportdefvar AUTORUN_ARGS       ""
 
@@ -173,18 +176,50 @@ fi
             goto_exit 8
         fi
 
-        if [[ $CLEAN_RELEASE == "y" ]] ; then
-
-            show_message "Remove Intermidiate Files..."
-
-            #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/.git"
-            #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Source"
-            #rm -rf "$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Intermidiate"
+        if [[ $ANDROID_SUPPORT == "y" ]] ; then
+            pushd "$SCRIPT_SRC_DIR"
+                ./install_tools_dev_android.sh
+            popd
+            if ! [ -d "${HOME}/android-studio" ] ; then
+                ANDROID_STUDIO_DIR=`realpath /opt/android-studio*/android-studio`
+                if [ -d "${ANDROID_STUDIO_DIR}" ] ; then
+                    ln -s "${ANDROID_STUDIO_DIR}" "${HOME}/android-studio"
+                fi
+            fi
+            pushd "Engine/Extras/Android"
+                ./SetupAndroid.sh
+            popd
         fi
 
-        if [ -d "${XDG_DESKTOP_DIR:-$HOME/Desktop}" ] ; then
+        if [[ $CLEAN_RELEASE == "y" ]] ; then
 
-            echo "#!/usr/bin/env xdg-open
+            function rm_by_name() {
+                find "$1" -type d -iname "$2" -exec sh -c 'x=$(realpath "{}"); rm -rf "$x";' \;
+            }
+
+            if [[ $FINAL_RM_GIT == "y" ]] ; then rm -rf ".git" ; fi
+
+            if [[ $FINAL_RM_GIT == "y" ]] ; then rm -rf "Engine/Intermidiate" ; fi
+
+            if [[ $FINAL_RM_MAC == "y" ]] ; then
+                rm_by_name "Engine/Binaries" "mac"
+                rm_by_name "Engine/Binaries" "ios"
+                rm_by_name "Engine/Source"   "mac"
+                rm_by_name "Engine/Source"   "ios"
+            fi
+
+            if [[ $FINAL_RM_WIN == "y" ]] ; then
+                rm_by_name "Engine/Binaries" "windows"
+                rm_by_name "Engine/Binaries" "win32"
+                rm_by_name "Engine/Binaries" "win64"
+                rm_by_name "Engine/Source"   "windows"
+                rm_by_name "Engine/Source"   "win32"
+                rm_by_name "Engine/Source"   "win64"
+            fi
+
+        fi
+
+        echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=UE4Editor
 Comment=Unreal Engine 4 Editor
@@ -192,12 +227,12 @@ Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor
 Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game" | tee "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4Editor.desktop"
-            chmod +x "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4Editor.desktop"
+Categories=Game" | tee "${DESKTOP_DIR}/UE4Editor.desktop"
+        chmod +x "${DESKTOP_DIR}/UE4Editor.desktop"
 
-            if [[ $ENABLE_OPENGL == "y" ]] ; then
+        if [[ $ENABLE_OPENGL == "y" ]] ; then
 
-                echo "#!/usr/bin/env xdg-open
+            echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=UE4Editor (OpenGL)
 Comment=Unreal Engine 4 Editor (OpenGL)
@@ -205,12 +240,11 @@ Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor -openg
 Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game" | tee "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4EditorOGL.desktop"
-                chmod +x "${XDG_DESKTOP_DIR:-$HOME/Desktop}/UE4EditorOGL.desktop"
+Categories=Game" | tee "${DESKTOP_DIR}/UE4EditorOGL.desktop"
+            chmod +x "${DESKTOP_DIR}/UE4EditorOGL.desktop"
 
-                if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
-                    export AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
-                fi
+            if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
+                export AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
             fi
         fi
 
