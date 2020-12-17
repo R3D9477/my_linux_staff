@@ -32,8 +32,8 @@ pushd "/tmp"
             fi
         fi
 
-echo ""
-echo " FAILED TO BUILD AND(OR) INSTALL KWIN-LOWLATENCY ${PLASMA_VERSION[0]}.${PLASMA_VERSION[1]}"
-echo ""
+    popd
+
+show_message "FAILED TO BUILD AND(OR) INSTALL KWIN-LOWLATENCY ${PLASMA_VERSION[0]}.${PLASMA_VERSION[1]}"
 
 exit 1

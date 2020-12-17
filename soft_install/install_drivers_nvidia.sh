@@ -3,12 +3,12 @@
 SCRIPT_SRC_DIR="$(dirname "$(realpath -s "$0")")"
 source "$SCRIPT_SRC_DIR/install"
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 
 # COMMENTED TO INSTALL UBUNTU RECOMMENDED DRIVERS:
 #exportdefvar NVIDIA_DRIVER_VERSION "450" # LTS version
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 
 if ! [[ -z "${NVIDIA_DRIVER_VERSION}" ]] ; then
     sudo add-apt-repository --no-update --yes ppa:graphics-drivers/ppa
