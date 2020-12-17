@@ -58,8 +58,11 @@ install_lpkg                    \
     gstreamer1.0-qt5            \
     gstreamer1.0-pulseaudio     \
     ubuntu-restricted-extras    \
+    software-properties-qt      \
     gnome-disk-utility          \
     linux-tools-common linux-tools-generic "linux-tools-`uname -r`"
+
+sudo ln -s "/usr/bin/software-properties-qt" "/usr/bin/software-properties-kde"
 
 #if ! [ -f "/usr/bin/kdesu" ]; then
 #    sudo ln -s /etc/alternatives/kdesu /usr/bin/kdesu

@@ -5,11 +5,14 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
-exportdefvar NVIDIA_DRIVER_VERSION "450" # LTS version
+# COMMENTED TO INSTALL UBUNTU RECOMMENDED DRIVERS:
+#exportdefvar NVIDIA_DRIVER_VERSION "450" # LTS version
 
 #--------------------------------------------------------------------------------------------------
 
-sudo add-apt-repository --no-update --yes ppa:graphics-drivers/ppa
+if ! [[ -z "${NVIDIA_DRIVER_VERSION}" ]] ; then
+    sudo add-apt-repository --no-update --yes ppa:graphics-drivers/ppa
+fi
 
 get_local "phoronix-test-suite.deb" "http://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_10.0.1_all.deb"
 
@@ -21,8 +24,14 @@ install_lpkg                \
     vulkan-utils            \
     mesa-vulkan-drivers     \
     phoronix-test-suite     \
-    libgl1-mesa-dev         \
-    nvidia-driver-$NVIDIA_DRIVER_VERSION
+    libgl1-mesa-dev
+
+if ! [[ -z "${NVIDIA_DRIVER_VERSION}" ]] ; then
+    install_lpkg            \
+        nvidia-driver-$NVIDIA_DRIVER_VERSION
+else
+    "$SCRIPT_SRC_DIR/install_drivers_recommended.sh"
+fi
 
 #IFS='.' read -r -a NVIDIA_VERSION <<< $(apt-cache policy nvidia-driver-440 | grep Installed | cut -d ' ' -f4 | cut -d '-' -f1)
 #if ( ! [ -z "${NVIDIA_VERSION[0]}" ] && ! [ -z "${NVIDIA_VERSION[1]}" ] ) ; then
