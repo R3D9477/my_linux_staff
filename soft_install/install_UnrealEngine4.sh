@@ -18,6 +18,7 @@ exportdefvar ENABLE_OPENGL      n
 exportdefvar DELETE_IF_EXISTS   y
 exportdefvar GIT_RESET          y
 exportdefvar SDK_RESET          y
+exportdefvar ADD_UE4GITPLUGIN   y
 exportdefvar CLEAN_BUILD        n
 exportdefvar FINAL_RM_GIT       y
 exportdefvar FINAL_RM_MAC       y
@@ -157,6 +158,13 @@ fi
             sed -i 's/FMessageDialog.*LinuxDynamicRHI.*OpenGLDeprecated.*OpenGL.*deprecated.*;//g' "Engine/Source/Runtime/RHI/Private/Linux/LinuxDynamicRHI.cpp"
         fi
 
+        if [[ $ADD_UE4GITPLUGIN == "y" ]] ; then
+            pushd "Engine/Plugins/Developer"
+                rm -rf "GitSourceControl"
+                git clone "https://github.com/SRombauts/UE4GitPlugin.git" "GitSourceControl"
+            popd
+        fi
+
         if [[ $IS_KDE ]] ; then qdbus org.kde.KWin /Compositor suspend ; fi
 
         TC_VER=`realpath Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v*clang*`/ToolchainVersion.txt
@@ -215,6 +223,9 @@ fi
                 rm_by_name "Engine/Source"   "windows"
                 rm_by_name "Engine/Source"   "win32"
                 rm_by_name "Engine/Source"   "win64"
+                rm_by_name "Engine/Plugins"  "windows"
+                rm_by_name "Engine/Plugins"  "win32"
+                rm_by_name "Engine/Plugins"  "win64"
             fi
 
         fi
