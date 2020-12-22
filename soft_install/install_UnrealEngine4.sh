@@ -11,6 +11,7 @@ exportdefvar GIT_USER           ""
 exportdefvar GIT_PASS           ""
 exportdefvar GIT_REPO           "github.com/EpicGames/UnrealEngine.git"
 exportdefvar GIT_BRANCH         "release"
+exportdefvar GIT_REVISION       ""
 
 exportdefvar SKIP_DEPS          n
 exportdefvar ANDROID_SUPPORT    y
@@ -54,37 +55,37 @@ if [[ $SKIP_DEPS != "y" ]] ; then
     bash "${SCRIPT_SRC_DIR}/install_fbxsdk.sh"
 fi
 
-if ! pushd "$TARGET_DIR" ; then
+if ! pushd "${TARGET_DIR}" ; then
 
     show_message "Target dir is not exists!"
     goto_exit 2
 fi
-    show_message "Installation path: $TARGET_DIR/UnrealEngine-$GIT_BRANCH"
+    show_message "Installation path: ${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}"
 
-    if [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
+    if [ -d "UnrealEngine-${GIT_BRANCH}" ] ; then
         if [[ $DELETE_IF_EXISTS == "y" ]] ; then
 
-            show_message "Remove existing sources and do a clean install: UnrealEngine-$GIT_BRANCH"
+            show_message "Remove existing sources and do a clean install: UnrealEngine-${GIT_BRANCH}"
 
-            rm -rf "UnrealEngine-$GIT_BRANCH"
+            rm -rf "UnrealEngine-${GIT_BRANCH}"
 
         else
 
-            show_message " Update existing sources: UnrealEngine-$GIT_BRANCH"
-            show_message " Source URL: https://$GIT_USER:$GIT_PASS@$GIT_REPO"
+            show_message " Update existing sources: UnrealEngine-${GIT_BRANCH}"
+            show_message " Source URL: https://${GIT_USER}:@${GIT_REPO}"
 
-            pushd "UnrealEngine-$GIT_BRANCH"
+            pushd "UnrealEngine-${GIT_BRANCH}"
 
                 if [[ $GIT_RESET == "y" ]] ; then
                     git init
                     git remote remove origin
-                    git remote add origin "https://$GIT_USER:$GIT_PASS@$GIT_REPO"
+                    git remote add origin "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO}"
                     git fetch origin
                     git submodule foreach --recursive "git clean -dfx"
                     git clean -dfx
                     git submodule foreach --recursive "git reset --hard HEAD"
-                    git reset --hard origin/$GIT_BRANCH
-                    git pull origin $GIT_BRANCH
+                    git reset --hard origin/${GIT_BRANCH}
+                    git pull origin ${GIT_BRANCH}
                 fi
 
                 if [[ $SDK_RESET == "y" ]] ; then
@@ -96,15 +97,15 @@ fi
         fi
     fi
 
-    if ! [ -d "UnrealEngine-$GIT_BRANCH" ] ; then
-        if ! ( git clone -b "$GIT_BRANCH" --single-branch "https://$GIT_USER:$GIT_PASS@$GIT_REPO" "UnrealEngine-$GIT_BRANCH" ) ; then
+    if ! [ -d "UnrealEngine-${GIT_BRANCH}" ] ; then
+        if ! ( git clone -b "${GIT_BRANCH}" --single-branch "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO}" "UnrealEngine-${GIT_BRANCH}" ) ; then
 
             show_message "Can't clone UnrealEngine from remote branch!"
             goto_exit 3
         fi
     fi
 
-    pushd "UnrealEngine-$GIT_BRANCH"
+    pushd "UnrealEngine-${GIT_BRANCH}"
 
         # parse file and print version
         # /Engine/Build/Build.version
@@ -112,10 +113,18 @@ fi
         if [[ $MAKEONLY != "y" ]] ; then
 
             rm ".git/index.lock"
-            if ! ( git checkout "$GIT_BRANCH" ) ; then
+            if ! ( git checkout "${GIT_BRANCH}" ) ; then
 
-                show_message "Can't switch to $GIT_BRANCH branch!"
+                show_message "Can't switch to ${GIT_BRANCH} branch!"
                 goto_exit 4
+            fi
+
+            if ! [ -z "${GIT_REVISION}" ] ; then
+                if ! ( git reset --hard "${GIT_REVISION}" ) ; then
+
+                    show_message "Can't switch to ${GIT_REVISION} revision!"
+                    goto_exit 5
+                fi
             fi
 
             # don't use curl to avoid:
@@ -134,7 +143,7 @@ fi
             if ! ( eval "echo y | ./Setup.sh" ) ; then
 
                 show_message "Setup was Failed!"
-                goto_exit 5
+                goto_exit 6
             fi
 
             sleep 3s ; sync
@@ -142,7 +151,7 @@ fi
             if ! ( ./GenerateProjectFiles.sh ) ; then
 
                 show_message "GenerateProjectFiles was Failed!"
-                goto_exit 6
+                goto_exit 7
             fi
 
             sleep 3s ; sync
@@ -162,6 +171,8 @@ fi
             pushd "Engine/Plugins/Developer"
                 rm -rf "GitSourceControl"
                 git clone "https://github.com/SRombauts/UE4GitPlugin.git" "GitSourceControl"
+                # DISABLE HOT-RELOADING FEATURE
+                sed -i 's/UPackageTools::ReloadPackages/\/\/&/' "GitSourceControl/Source/GitSourceControl/Private/GitSourceControlMenu.cpp"
             popd
         fi
 
@@ -175,13 +186,13 @@ fi
         if ! ( make ) ; then
 
             show_message "Making process was Failed!"
-            goto_exit 7
+            goto_exit 8
         fi
 
         if ! ( make ShaderCompileWorker ) ; then
 
             show_message "Making process was Failed!"
-            goto_exit 8
+            goto_exit 9
         fi
 
         if [[ $ANDROID_SUPPORT == "y" ]] ; then
@@ -227,15 +238,14 @@ fi
                 rm_by_name "Engine/Plugins"  "win32"
                 rm_by_name "Engine/Plugins"  "win64"
             fi
-
         fi
 
         echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=UE4Editor
 Comment=Unreal Engine 4 Editor
-Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor
-Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
+Exec=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Binaries/Linux/UE4Editor
+Icon=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
 Categories=Game" | tee "${DESKTOP_DIR}/UE4Editor.desktop"
@@ -247,8 +257,8 @@ Categories=Game" | tee "${DESKTOP_DIR}/UE4Editor.desktop"
 [Desktop Entry]
 Name=UE4Editor (OpenGL)
 Comment=Unreal Engine 4 Editor (OpenGL)
-Exec=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Binaries/Linux/UE4Editor -opengl4
-Icon=$TARGET_DIR/UnrealEngine-$GIT_BRANCH/Engine/Content/Slate/Testing/UE4Icon.png
+Exec=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Binaries/Linux/UE4Editor -opengl4
+Icon=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
 Categories=Game" | tee "${DESKTOP_DIR}/UE4EditorOGL.desktop"
