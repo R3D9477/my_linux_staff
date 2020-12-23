@@ -5,6 +5,7 @@ source "$SCRIPT_SRC_DIR/install"
 
 #------------------------------------------------------------------------------------------------------
 
+preAuthRoot
 sudo add-apt-repository --no-update --yes ppa:morphis/anbox-support
 
 get_local "virtualbox.deb" "https://download.virtualbox.org/virtualbox/6.1.2/virtualbox-6.1_6.1.2-135662~Ubuntu~bionic_amd64.deb"
@@ -23,12 +24,14 @@ adb shell su -c "ip route add default dev eth0 via 192.168.250.1"
 adb shell su -c "ip rule add pref 32766 table main"
 adb shell su -c "ip rule add pref 32767 table local"
 
+preAuthRoot
 sudo modprobe ashmem_linux
 sudo modprobe binder_linux
 
 install_snap \
     "anbox --devmode --beta"
 
+preAuthRoot
 sudo usermod -aG vboxusers "$USER"
 
 get_local "virtualbox.vbox-extpack" "https://download.virtualbox.org/virtualbox/6.1.2/Oracle_VM_VirtualBox_Extension_Pack-6.1.2.vbox-extpack"

@@ -5,7 +5,7 @@ source "$SCRIPT_SRC_DIR/install"
 
 #------------------------------------------------------------------------------------------------------
 
-exportdefvar TARGET_DIR         "$HOME"
+exportdefvar TARGET_DIR         "${HOME}"
 
 exportdefvar GIT_USER           ""
 exportdefvar GIT_PASS           ""
@@ -22,6 +22,7 @@ exportdefvar SDK_RESET          y
 exportdefvar ADD_UE4GITPLUGIN   y
 exportdefvar CLEAN_BUILD        n
 exportdefvar FINAL_RM_GIT       y
+exportdefvar FINAL_RM_IMT       y
 exportdefvar FINAL_RM_MAC       y
 exportdefvar FINAL_RM_WIN       y
 exportdefvar AUTORUN_EDITOR     y
@@ -34,11 +35,12 @@ if [[ $SKIP_DEPS != "y" ]] ; then
   #  update_system
 
     install_lpkg                \
+        wget                    \
+        clang                   \
+        cmake                   \
         build-essential         \
         mono-complete           \
         mono-devel              \
-        clang                   \
-        cmake                   \
         dos2unix                \
         xdg-user-dirs           \
         git-all                 \
@@ -63,7 +65,7 @@ fi
     show_message "Installation path: ${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}"
 
     if [ -d "UnrealEngine-${GIT_BRANCH}" ] ; then
-        if [[ $DELETE_IF_EXISTS == "y" ]] ; then
+        if [[ ${DELETE_IF_EXISTS} == "y" ]] ; then
 
             show_message "Remove existing sources and do a clean install: UnrealEngine-${GIT_BRANCH}"
 
@@ -76,7 +78,7 @@ fi
 
             pushd "UnrealEngine-${GIT_BRANCH}"
 
-                if [[ $GIT_RESET == "y" ]] ; then
+                if [[ ${GIT_RESET} == "y" ]] ; then
                     git init
                     git remote remove origin
                     git remote add origin "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO}"
@@ -88,7 +90,7 @@ fi
                     git pull origin ${GIT_BRANCH}
                 fi
 
-                if [[ $SDK_RESET == "y" ]] ; then
+                if [[ ${SDK_RESET} == "y" ]] ; then
                     rm -rf "Engine/Extras/ThirdPartyNotUE/SDKs"
                     rm -rf ".git/ue4-gitdeps"
                     rm -rf ".git/ue4-sdks"
@@ -98,11 +100,7 @@ fi
     fi
 
     if ! [ -d "UnrealEngine-${GIT_BRANCH}" ] ; then
-        if ! ( git clone -b "${GIT_BRANCH}" --single-branch "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO}" "UnrealEngine-${GIT_BRANCH}" ) ; then
-
-            show_message "Can't clone UnrealEngine from remote branch!"
-            goto_exit 3
-        fi
+        git clone --depth 1 --single-branch -b "${GIT_BRANCH}" "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO}" "UnrealEngine-${GIT_BRANCH}"
     fi
 
     pushd "UnrealEngine-${GIT_BRANCH}"
@@ -113,31 +111,6 @@ fi
         if [[ $MAKEONLY != "y" ]] ; then
 
             rm ".git/index.lock"
-            if ! ( git checkout "${GIT_BRANCH}" ) ; then
-
-                show_message "Can't switch to ${GIT_BRANCH} branch!"
-                goto_exit 4
-            fi
-
-            if ! [ -z "${GIT_REVISION}" ] ; then
-                if ! ( git reset --hard "${GIT_REVISION}" ) ; then
-
-                    show_message "Can't switch to ${GIT_REVISION} revision!"
-                    goto_exit 5
-                fi
-            fi
-
-            # don't use curl to avoid:
-            #Installing a bundled clang toolchain
-            #Downloading toolchain: http://cdn.unrealengine.com/Toolchain_Linux/native-linux-v16_clang-9.0.1-centos7.tar.gz
-            #% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-            #                                Dload  Upload   Total   Spent    Left  Speed
-            #0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-            #Extracting toolchain.
-            #tar: This does not look like a tar archive
-            #gzip: stdin: unexpected end of file
-            #tar: Child returned status 1
-            #tar: Error is not recoverable: exiting now
             sed -i "s#if which curl 1>/dev/null; then#if [ '' ] ; then#g" "Engine/Build/BatchFiles/Linux/SetupToolchain.sh"
 
             if ! ( eval "echo y | ./Setup.sh" ) ; then
@@ -158,7 +131,7 @@ fi
 
         else show_message "Make only!" ; fi
 
-        if [[ $ENABLE_OPENGL == "y" ]] ; then
+        if [[ ${ENABLE_OPENGL} == "y" ]] ; then
 
             # enable OpenGL target
             sed -i 's/.*;.*+TargetedRHIs=GLSL_430/+TargetedRHIs=GLSL_430/g' "Engine/Config/BaseEngine.ini"
@@ -167,7 +140,7 @@ fi
             sed -i 's/FMessageDialog.*LinuxDynamicRHI.*OpenGLDeprecated.*OpenGL.*deprecated.*;//g' "Engine/Source/Runtime/RHI/Private/Linux/LinuxDynamicRHI.cpp"
         fi
 
-        if [[ $ADD_UE4GITPLUGIN == "y" ]] ; then
+        if [[ ${ADD_UE4GITPLUGIN} == "y" ]] ; then
             pushd "Engine/Plugins/Developer"
                 rm -rf "GitSourceControl"
                 git clone "https://github.com/SRombauts/UE4GitPlugin.git" "GitSourceControl"
@@ -176,10 +149,10 @@ fi
             popd
         fi
 
-        if [[ $IS_KDE ]] ; then qdbus org.kde.KWin /Compositor suspend ; fi
+        if [[ ${IS_KDE} ]] ; then qdbus org.kde.KWin /Compositor suspend ; fi
 
         TC_VER=`realpath Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v*clang*`/ToolchainVersion.txt
-        if ! [ -f "$TC_VER" ] ; then echo `ls Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64` > "$TC_VER" ; fi
+        if ! [ -f "${TC_VER}" ] ; then echo `ls "Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64"` > "${TC_VER}" ; fi
 
         if [[ $CLEAN_BUILD == "y" ]] ; then make ARGS=-clean ; fi
 
@@ -195,7 +168,9 @@ fi
             goto_exit 9
         fi
 
-        if [[ $ANDROID_SUPPORT == "y" ]] ; then
+        chmod +x "Engine/Binaries/Linux/UE4Editor"
+
+        if [[ ${ANDROID_SUPPORT} == "y" ]] ; then
             pushd "$SCRIPT_SRC_DIR"
                 ./install_tools_dev_android.sh
             popd
@@ -210,34 +185,31 @@ fi
             popd
         fi
 
-        if [[ $CLEAN_RELEASE == "y" ]] ; then
+        if [[ ${FINAL_RM_GIT} == "y" ]] ; then rm -rf ".git" ; fi
 
-            function rm_by_name() {
-                find "$1" -type d -iname "$2" -exec sh -c 'x=$(realpath "{}"); rm -rf "$x";' \;
-            }
+        if [[ ${FINAL_RM_IMT} == "y" ]] ; then rm -rf "Engine/Intermidiate" ; fi
 
-            if [[ $FINAL_RM_GIT == "y" ]] ; then rm -rf ".git" ; fi
+        function rm_by_mask() {
+            find "$1" -type d -iname "$2" -exec sh -c 'x=$(realpath "{}"); rm -rf "$x";' \;
+        }
 
-            if [[ $FINAL_RM_GIT == "y" ]] ; then rm -rf "Engine/Intermidiate" ; fi
+        if [[ ${FINAL_RM_MAC} == "y" ]] ; then
+            rm_by_mask "Engine/Binaries"            "mac"
+            rm_by_mask "Engine/Binaries"            "ios"
+            rm_by_mask "Engine/Source/ThirdParty"   "mac"
+            rm_by_mask "Engine/Source/ThirdParty"   "ios"
+        fi
 
-            if [[ $FINAL_RM_MAC == "y" ]] ; then
-                rm_by_name "Engine/Binaries" "mac"
-                rm_by_name "Engine/Binaries" "ios"
-                rm_by_name "Engine/Source"   "mac"
-                rm_by_name "Engine/Source"   "ios"
-            fi
-
-            if [[ $FINAL_RM_WIN == "y" ]] ; then
-                rm_by_name "Engine/Binaries" "windows"
-                rm_by_name "Engine/Binaries" "win32"
-                rm_by_name "Engine/Binaries" "win64"
-                rm_by_name "Engine/Source"   "windows"
-                rm_by_name "Engine/Source"   "win32"
-                rm_by_name "Engine/Source"   "win64"
-                rm_by_name "Engine/Plugins"  "windows"
-                rm_by_name "Engine/Plugins"  "win32"
-                rm_by_name "Engine/Plugins"  "win64"
-            fi
+        if [[ $FINAL_RM_WIN == "y" ]] ; then
+            rm_by_mask "Engine/Binaries"            "windows"
+            rm_by_mask "Engine/Binaries"            "win32"
+            rm_by_mask "Engine/Binaries"            "win64"
+            rm_by_mask "Engine/Source/ThirdParty"   "windows"
+            rm_by_mask "Engine/Source/ThirdParty"   "win32"
+            rm_by_mask "Engine/Source/ThirdParty"   "win64"
+            rm_by_mask "Engine/Plugins"             "windows"
+            rm_by_mask "Engine/Plugins"             "win32"
+            rm_by_mask "Engine/Plugins"             "win64"
         fi
 
         echo "#!/usr/bin/env xdg-open
@@ -248,10 +220,10 @@ Exec=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Binaries/Linux/UE4Editor
 Icon=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game" | tee "${DESKTOP_DIR}/UE4Editor.desktop"
+Categories=Development;Games" | tee "${DESKTOP_DIR}/UE4Editor.desktop"
         chmod +x "${DESKTOP_DIR}/UE4Editor.desktop"
 
-        if [[ $ENABLE_OPENGL == "y" ]] ; then
+        if [[ ${ENABLE_OPENGL} == "y" ]] ; then
 
             echo "#!/usr/bin/env xdg-open
 [Desktop Entry]
@@ -261,17 +233,17 @@ Exec=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Binaries/Linux/UE4Editor -o
 Icon=${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}/Engine/Content/Slate/Testing/UE4Icon.png
 Terminal=false
 Type=Application
-Categories=Game" | tee "${DESKTOP_DIR}/UE4EditorOGL.desktop"
+Categories=Development;Games" | tee "${DESKTOP_DIR}/UE4EditorOGL.desktop"
             chmod +x "${DESKTOP_DIR}/UE4EditorOGL.desktop"
 
-            if ! [[ "$AUTORUN_ARGS" =~ "-opengl4" ]] && ! [[ "$AUTORUN_ARGS" =~ "-vulkan" ]] ; then
-                export AUTORUN_ARGS="-opengl4 $AUTORUN_ARGS"
+            if ! [[ "${AUTORUN_ARGS}" =~ "-opengl4" ]] && ! [[ "${AUTORUN_ARGS}" =~ "-vulkan" ]] ; then
+                export AUTORUN_ARGS="-opengl4 ${AUTORUN_ARGS}"
             fi
         fi
 
-        if [[ $IS_KDE ]] ; then qdbus org.kde.KWin /Compositor resume ; fi
+        if [[ ${IS_KDE} ]] ; then qdbus org.kde.KWin /Compositor resume ; fi
 
-        if [[ $AUTORUN_EDITOR == "y" ]] ; then exec "Engine/Binaries/Linux/UE4Editor" $AUTORUN_ARGS ; fi
+        if [[ ${AUTORUN_EDITOR} == "y" ]] ; then eval "Engine/Binaries/Linux/UE4Editor ${AUTORUN_ARGS}" ; fi
 
     popd
 

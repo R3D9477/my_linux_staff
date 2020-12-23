@@ -5,7 +5,8 @@ source "$SCRIPT_SRC_DIR/install"
 
 #------------------------------------------------------------------------------------------------------
 
-wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+preAuthRoot
+wget -q -O - "https://dl.google.com/linux/linux_signing_key.pub" | sudo apt-key add -
 
 sudo add-apt-repository --no-update --yes ppa:qbittorrent-team/qbittorrent-stable
 sudo add-apt-repository --no-update --yes ppa:nilarimogard/webupd8

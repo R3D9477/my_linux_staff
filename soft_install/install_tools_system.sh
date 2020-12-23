@@ -5,6 +5,7 @@ source "$SCRIPT_SRC_DIR/install"
 
 #------------------------------------------------------------------------------------------------------
 
+preAuthRoot
 sudo add-apt-repository --no-update --yes ppa:yannubuntu/boot-repair
 sudo add-apt-repository --no-update --yes ppa:appimagelauncher-team/stable
 
@@ -62,8 +63,10 @@ install_lpkg                    \
     gnome-disk-utility          \
     linux-tools-common linux-tools-generic "linux-tools-`uname -r`"
 
+preAuthRoot
 sudo ln -s "/usr/bin/software-properties-qt" "/usr/bin/software-properties-kde"
 
 #if ! [ -f "/usr/bin/kdesu" ]; then
+#    preAuthRoot
 #    sudo ln -s /etc/alternatives/kdesu /usr/bin/kdesu
 #fi

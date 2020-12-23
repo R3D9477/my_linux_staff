@@ -10,6 +10,18 @@ mkdir  "${PKG_ARCHIVE}"
 
 #------------------------------------------------------------------------------------------------------
 
+function preAuthRoot () {
+
+    if ! [ -z "${ROOT_PASS}" ] ; then
+        if eval "echo ${ROOT_PASS} | sudo -S printf ''" ; then return 0
+        else return 1
+        fi
+    fi
+}
+export -f preAuthRoot
+
+#------------------------------------------------------------------------------------------------------
+
 function show_message() {
 
     echo ""
@@ -59,6 +71,7 @@ if [[ `echo $XDG_CURRENT_DESKTOP` == "KDE" ]] ; then export IS_KDE=1 ; fi
 
 function update_system() {
 
+    preAuthRoot
     sudo apt -f install -y
 
     if [[ $IS_KDE_NEON ]] ; then
@@ -70,12 +83,14 @@ function update_system() {
         pkcon update -y
     else
         # Ubuntu
+        preAuthRoot
         if ! ( sudo apt update && sudo apt upgrade -y ) ; then
             show_message "FAILED TO UPDATE SYSTEM (apt)"
             goto_exit 1
         fi
     fi
 
+    preAuthRoot
     sudo apt -f install -y
 
     return 0
@@ -115,8 +130,10 @@ function install_local_solo_lpkg() {
     fi
 
     if [[ $PKG_NAME ]] ; then
+        preAuthRoot
         if ( sudo pkcon install-local "$PKG_NAME" -y ) ; then
             if [[ "$PKG" =~ ".flatpakref" ]] ; then
+                preAuthRoot
                 sudo flatpak override "$PKG_NAME" --filesystem=/media --filesystem=/mnt --filesystem=/run/media --filesystem=/run/mnt
             fi
             return 0;
@@ -144,7 +161,9 @@ function install_lpkg() {
     done
 
     if ! [[ -z "${REMOTE_PKGS[@]}" ]] ; then
+        preAuthRoot
         if ! ( sudo apt install --install-recommends "${REMOTE_PKGS[@]}" -y ) ; then
+            preAuthRoot
             if ! ( sudo apt -f install -y ) ; then
                 show_message "INSTALLATION WAS FAILED (apt)"
                 goto_exit 1
@@ -157,6 +176,7 @@ function install_lpkg() {
 
 function install_snap() {
     for SNAP_PKG_NAME in "$@" ; do
+        preAuthRoot
         if ! ( eval "sudo snap install $SNAP_PKG_NAME" ) ; then
             show_message "INSTALLATION OF $SNAP_PKG_NAME WAS FAILED (snap)"
             goto_exit 1

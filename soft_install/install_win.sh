@@ -5,12 +5,13 @@ source "$SCRIPT_SRC_DIR/install"
 
 #------------------------------------------------------------------------------------------------------
 
+preAuthRoot
 sudo dpkg --add-architecture i386
 
 update_system
 
+preAuthRoot
 sudo add-apt-repository --no-update --yes multiverse
-
 sudo add-apt-repository --no-update --yes ppa:lutris-team/lutris
 
 #wget -O /tmp/Release.key "https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key"

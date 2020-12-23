@@ -10,6 +10,7 @@ exportdefvar NVIDIA_CODEWORKS_INSTALLER "`realpath ${DOWNLOADS_DIR}/CodeWorks*li
 
 #--------------------------------------------------------------------------------------------------
 
+preAuthRoot
 sudo add-apt-repository --no-update --yes ppa:linuxuprising/java
 sudo add-apt-repository --no-update --yes ppa:maarten-fonville/android-studio
 

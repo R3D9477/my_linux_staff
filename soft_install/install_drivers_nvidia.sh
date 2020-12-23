@@ -11,6 +11,7 @@ source "$SCRIPT_SRC_DIR/install"
 #------------------------------------------------------------------------------------------------------
 
 if ! [[ -z "${NVIDIA_DRIVER_VERSION}" ]] ; then
+    preAuthRoot
     sudo add-apt-repository --no-update --yes ppa:graphics-drivers/ppa
 fi
 
