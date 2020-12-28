@@ -65,14 +65,13 @@ fi
     show_message "Installation path: ${TARGET_DIR}/UnrealEngine-${GIT_BRANCH}"
 
     if [ -d "UnrealEngine-${GIT_BRANCH}" ] ; then
+
         if [[ ${DELETE_IF_EXISTS} == "y" ]] ; then
 
             show_message "Remove existing sources and do a clean install: UnrealEngine-${GIT_BRANCH}"
 
             rm -rf "UnrealEngine-${GIT_BRANCH}"
-
         else
-
             show_message " Update existing sources: UnrealEngine-${GIT_BRANCH}"
             show_message " Source URL: https://${GIT_USER}:@${GIT_REPO}"
 
