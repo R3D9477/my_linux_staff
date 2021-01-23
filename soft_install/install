@@ -98,11 +98,11 @@ function update_system() {
 
 function get_local() {
 
-    if ! [ -f "$PKG_ARCHIVE/$1" ] ; then
-        mkdir -p "$PKG_ARCHIVE"
+    if ! [ -f "${PKG_ARCHIVE}/$1" ] ; then
+        mkdir -p "${PKG_ARCHIVE}"
 
-        if [ -d "$PKG_ARCHIVE" ] ; then
-            if ( wget -nc -O "$PKG_ARCHIVE/$1" "$2" ) ; then
+        if [ -d "${PKG_ARCHIVE}" ] ; then
+            if ( wget -nc -O "${PKG_ARCHIVE}/$1" "$2" ) ; then
                 return 0
             fi
         fi
@@ -118,32 +118,34 @@ function install_local_solo_lpkg() {
 
     PKG_NAME="$1"
 
-    if ! [ -f "$PKG_NAME" ] ; then
-        if   [ -f "$PKG_NAME.deb" ] ; then PKG_NAME="$PKG_NAME.deb";
-        elif [ -f "$PKG_NAME.flatpakref" ] ; then PKG_NAME="$PKG_NAME.flatpakref";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.deb" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.deb";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.flatpakref" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.flatpakref";
-        elif [ -f "$PKG_ARCHIVE/$PKG_NAME.AppImage" ] ; then PKG_NAME="$PKG_ARCHIVE/$PKG_NAME.AppImage";
+    if ! [ -f "${PKG_NAME}" ] ; then
+        if   [ -f "${PKG_NAME}.deb" ] ; then PKG_NAME="${PKG_NAME}.deb";
+        elif [ -f "${PKG_NAME}.flatpakref" ] ; then PKG_NAME="${PKG_NAME}.flatpakref";
+        elif [ -f "${PKG_ARCHIVE}/${PKG_NAME}" ] ; then PKG_NAME="${PKG_ARCHIVE}/${PKG_NAME}";
+        elif [ -f "${PKG_ARCHIVE}/${PKG_NAME}.deb" ] ; then PKG_NAME="${PKG_ARCHIVE}/${PKG_NAME}.deb";
+        elif [ -f "${PKG_ARCHIVE}/${PKG_NAME}.flatpakref" ] ; then PKG_NAME="${PKG_ARCHIVE}/${PKG_NAME}.flatpakref";
+        elif [ -f "${PKG_ARCHIVE}/${PKG_NAME}.AppImage" ] ; then PKG_NAME="${PKG_ARCHIVE}/${PKG_NAME}.AppImage";
         else unset PKG_NAME
         fi
     fi
 
-    if [[ $PKG_NAME ]] ; then
+    if [[ -f "${PKG_NAME}" ]] ; then
         preAuthRoot
-        if ( sudo pkcon install-local "$PKG_NAME" -y ) ; then
-            if [[ "$PKG" =~ ".flatpakref" ]] ; then
-                preAuthRoot
-                sudo flatpak override "$PKG_NAME" --filesystem=/media --filesystem=/mnt --filesystem=/run/media --filesystem=/run/mnt
-            fi
-            return 0;
-        elif ( [ "$PKG" =~ ".AppImage" ] && [ -f "`whereis AppImageLauncher | awk '{print $2}'`" ] ) ; then
-            if ( eval AppImageLauncher "$PKG" ) ; then
+        AILEF="`whereis AppImageLauncher | awk '{print $2}'`"
+        if ( [[ "${PKG_NAME}" =~ ".AppImage" ]] && [ -f "${AILEF}" ] ) ; then
+            echo "eval ${AILEF} $PKG"
+            if ( eval AppImageLauncher "${PKG_NAME}" ) ; then
                 return 0
             fi
+        elif ( sudo pkcon install-local "${PKG_NAME}" -y ) ; then
+            if [[ "${PKG_NAME}" =~ ".flatpakref" ]] ; then
+                preAuthRoot
+                sudo flatpak override "${PKG_NAME}" --filesystem=/media --filesystem=/mnt --filesystem=/run/media --filesystem=/run/mnt
+            fi
+            return 0;
         fi
 
-        show_message "INSTALLATION WAS FAILED (pkcon-local, AppImageLauncher)"
+        show_message "INSTALLATION WAS FAILED (AppImageLauncher, pkcon-local)"
         goto_exit 1
     fi
 
