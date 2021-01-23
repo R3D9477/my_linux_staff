@@ -21,6 +21,13 @@ install_lpkg                    \
     openjdk-11-jre-headless     \
     android-studio
 
+install_lpkg                    \
+    oracle-java15-installer
+
+#--------------------------------------------------------------------------------------------------
+
+show_message "INSTALL ANDROID SDK"
+
 pushd "/opt"
     if [ -L "android-studio" ]
         ANDROID_STUDIO_PATH=$(realpath $(readlink "android-studio"))
@@ -28,8 +35,7 @@ pushd "/opt"
     fi
 popd
 
-install_lpkg                    \
-    oracle-java15-installer
+"${HOME}/android-studio/bin/studio.sh"
 
 #--------------------------------------------------------------------------------------------------
 
