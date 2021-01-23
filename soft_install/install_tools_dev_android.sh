@@ -21,6 +21,9 @@ install_lpkg                    \
     openjdk-11-jre-headless     \
     android-studio
 
+ASTUDIO_PATH=$(realpath /opt/android-studio-*/android-studio)
+ln -s "${ASTUDIO_PATH}" "${HOME}/android-studio"
+
 install_lpkg                    \
     oracle-java15-installer
 
@@ -28,7 +31,7 @@ install_lpkg                    \
 
 show_message "INSTALL ANDROID NDK: ${ANDROID_NDK_PKG_NAME}"
 
-if ! [ "${HOME}/Android/.ndk_installed" ] ; then
+if ! [ -f "${HOME}/Android/.ndk_installed" ] ; then
     get_local "${ANDROID_NDK_PKG_NAME}.zip" "https://dl.google.com/android/repository/${ANDROID_NDK_PKG_NAME}.zip"
     mkdir -p "${HOME}/Android"
     unzip "${PKG_ARCHIVE}/${ANDROID_NDK_PKG_NAME}.zip" -d "${HOME}/Android"

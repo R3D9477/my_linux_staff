@@ -6,7 +6,7 @@ fi
 export DESKTOP_DIR="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
 export DOWNLOADS_DIR="${XDG_DOWNLOADS_DIR:-$HOME/Downloads}"
 export PKG_ARCHIVE="${DOWNLOADS_DIR}/pkgarch"
-mkdir  "${PKG_ARCHIVE}"
+mkdir  -p "${PKG_ARCHIVE}"
 
 #------------------------------------------------------------------------------------------------------
 
