@@ -133,10 +133,8 @@ function install_local_solo_lpkg() {
         preAuthRoot
         AILEF="`whereis AppImageLauncher | awk '{print $2}'`"
         if ( [[ "${PKG_NAME}" =~ ".AppImage" ]] && [ -f "${AILEF}" ] ) ; then
-            echo "eval ${AILEF} $PKG"
-            if ( eval AppImageLauncher "${PKG_NAME}" ) ; then
-                return 0
-            fi
+            eval AppImageLauncher "${PKG_NAME}" &
+            return 0
         elif ( sudo pkcon install-local "${PKG_NAME}" -y ) ; then
             if [[ "${PKG_NAME}" =~ ".flatpakref" ]] ; then
                 preAuthRoot
