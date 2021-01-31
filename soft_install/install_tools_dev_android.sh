@@ -29,7 +29,7 @@ install_lpkg                    \
 show_message "INSTALL ANDROID SDK"
 
 pushd "/opt"
-    if [ -L "android-studio" ]
+    if [ -L "android-studio" ] ; then
         ANDROID_STUDIO_PATH=$(realpath $(readlink "android-studio"))
         ln -s "${ANDROID_STUDIO_PATH}" "${HOME}/android-studio"
     fi

@@ -3,6 +3,8 @@ if [ -f "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs" ] ; then
     source "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs"
 fi
 
+export DIST_CODENAME=`lsb_release -c | awk '{print $2}'`
+
 export DESKTOP_DIR="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
 export DOWNLOADS_DIR="${XDG_DOWNLOADS_DIR:-$HOME/Downloads}"
 export PKG_ARCHIVE="${DOWNLOADS_DIR}/pkgarch"

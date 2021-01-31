@@ -19,7 +19,7 @@ exportdefvar ENABLE_OPENGL      n
 exportdefvar DELETE_IF_EXISTS   y
 exportdefvar GIT_RESET          y
 exportdefvar SDK_RESET          y
-exportdefvar ADD_UE4GITPLUGIN   y
+exportdefvar ADD_UE4GITPLUGIN   n
 exportdefvar CLEAN_BUILD        n
 exportdefvar FINAL_RM_GIT       y
 exportdefvar FINAL_RM_IMT       y
@@ -27,6 +27,8 @@ exportdefvar FINAL_RM_MAC       y
 exportdefvar FINAL_RM_WIN       y
 exportdefvar AUTORUN_EDITOR     y
 exportdefvar AUTORUN_ARGS       ""
+
+exportdefvar ROOT_PASS          ""
 
 #------------------------------------------------------------------------------------------------------
 

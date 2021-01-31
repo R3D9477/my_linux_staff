@@ -17,6 +17,9 @@ echo "deb https://download.onlyoffice.com/repo/debian squeeze main" | sudo tee "
 #echo 'deb http://download.opensuse.org/repositories/home:/ColinDuquesnoy/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/home:ColinDuquesnoy.list
 #curl -fsSL https://download.opensuse.org/repositories/home:ColinDuquesnoy/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/home:ColinDuquesnoy.gpg > /dev/null
 
+get_local "google_key.pub" "https://dl-ssl.google.com/linux/linux_signing_key.pub"
+sudo apt-key add "$PKG_ARCHIVE/google_key.pub"
+
 get_local "steam.deb"                   "https://steamcdn-a.akamaihd.net/client/installer/steam.deb"
 get_local "viber.deb"                   "https://download.cdn.viber.com/cdn/desktop/Linux/viber.deb"
 get_local "discord.deb"                 "https://discord.com/api/download?platform=linux&format=deb"
