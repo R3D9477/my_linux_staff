@@ -8,6 +8,8 @@ source "$SCRIPT_SRC_DIR/install"
 preAuthRoot
 wget -q -O - "https://dl.google.com/linux/linux_signing_key.pub" | sudo apt-key add -
 
+sudo add-apt-repository --no-update --yes ppa:cdemu/ppa
+
 sudo add-apt-repository --no-update --yes ppa:qbittorrent-team/qbittorrent-stable
 sudo add-apt-repository --no-update --yes ppa:nilarimogard/webupd8
 
@@ -49,6 +51,7 @@ install_lpkg                    \
     kamoso                      \
     steam                       \
     viber                       \
+    k3b                         \
     clamav                      \
     clamav-daemon               \
     qbittorrent                 \
@@ -59,7 +62,8 @@ install_lpkg                    \
     tuxguitar-oss               \
     tuxguitar-alsa              \
     timidity-interfaces-extra   \
-    onlyoffice-desktopeditors
+    onlyoffice-desktopeditors   \
+    cdemu-daemon cdemu-client gcdemu
 
 install_lpkg                    \
     libwxgtk30                  \
