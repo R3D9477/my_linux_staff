@@ -5,6 +5,9 @@ source "$SCRIPT_SRC_DIR/install"
 
 #--------------------------------------------------------------------------------------------------
 
-install_lpkg        \
-    valgrind        \
+install_lpkg            \
+    build-essential     \
+    cmake               \
+    extra-cmake-modules \
+    valgrind            \
     kcachegrind

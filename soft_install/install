@@ -164,9 +164,11 @@ function install_lpkg() {
 
     if ! [[ -z "${REMOTE_PKGS[@]}" ]] ; then
         preAuthRoot
-        if ! ( sudo apt install --install-recommends "${REMOTE_PKGS[@]}" -y ) ; then
+        AAAarg="-y"
+        if [[ "${APT_AUTO_ACCEPT}" == "n" ]] ; then unset AAAarg ; fi
+        if ! ( sudo apt install --install-recommends "${REMOTE_PKGS[@]}" "${AAAarg}" ) ; then
             preAuthRoot
-            if ! ( sudo apt -f install -y ) ; then
+            if ! ( sudo apt -f install "${AAAarg}" ) ; then
                 show_message "INSTALLATION WAS FAILED (apt)"
                 goto_exit 1
             fi

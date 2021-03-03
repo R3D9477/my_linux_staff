@@ -82,3 +82,11 @@ install_snap        \
 
 install_flatpak     \
     "com.gitlab.ColinDuquesnoy.MellowPlayer"
+
+#------------------------------------------------------------------------------------------------------
+
+get_local "kde_cdemu-0.8.0.tar.bz2" "https://sourceforge.net/projects/kde-cdemu-manager/files/kde_cdemu-0.8.0.tar.bz2/download"
+#...
+#...
+#...
+

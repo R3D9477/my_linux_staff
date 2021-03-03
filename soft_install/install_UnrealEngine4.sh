@@ -14,6 +14,7 @@ exportdefvar GIT_BRANCH         "release"
 exportdefvar GIT_REVISION       ""
 
 exportdefvar SKIP_DEPS          n
+exportdefvar APT_AUTO_ACCEPT    n
 exportdefvar ANDROID_SUPPORT    y
 exportdefvar ENABLE_OPENGL      n
 exportdefvar DELETE_IF_EXISTS   y
@@ -45,7 +46,7 @@ if [[ $SKIP_DEPS != "y" ]] ; then
         mono-devel              \
         dos2unix                \
         xdg-user-dirs           \
-        git-all                 \
+        git                     \
         libcogl20               \
         libglew-dev             \
         libcheese8              \
